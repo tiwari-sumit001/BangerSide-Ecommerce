@@ -105,13 +105,33 @@
     <form id="place-order-form" action="/checkout" method="post" class="space-y-6">
       <div class="bg-zinc-50 p-6 rounded-3xl space-y-4">
         <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Payment Strategy</label>
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">💵</div>
-          <div>
-            <p class="font-black text-zinc-900 text-sm">Cash on Delivery</p>
-            <p class="text-[10px] text-zinc-400 font-bold uppercase tracking-tighter">Pay at your doorstep</p>
-          </div>
-          <input type="hidden" name="paymentMethod" value="cod">
+        
+        <div class="space-y-3">
+          <!-- COD Option -->
+          <label class="flex items-center gap-4 p-4 rounded-2xl border-2 border-transparent bg-white cursor-pointer hover:border-zinc-200 transition-all has-[:checked]:border-black">
+            <input type="radio" name="paymentMethod" value="cod" checked class="hidden peer">
+            <div class="w-12 h-12 bg-zinc-50 rounded-xl flex items-center justify-center text-xl">💵</div>
+            <div class="flex-1">
+              <p class="font-black text-zinc-900 text-sm">Cash on Delivery</p>
+              <p class="text-[10px] text-zinc-400 font-bold uppercase tracking-tighter">Pay at your doorstep</p>
+            </div>
+            <div class="w-5 h-5 rounded-full border-2 border-zinc-200 flex items-center justify-center peer-checked:bg-black peer-checked:border-black transition-all">
+                <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+            </div>
+          </label>
+
+          <!-- Online Payment Option -->
+          <label class="flex items-center gap-4 p-4 rounded-2xl border-2 border-transparent bg-white cursor-pointer hover:border-zinc-200 transition-all has-[:checked]:border-black">
+            <input type="radio" name="paymentMethod" value="online" class="hidden peer">
+            <div class="w-12 h-12 bg-zinc-50 rounded-xl flex items-center justify-center text-xl">💳</div>
+            <div class="flex-1">
+              <p class="font-black text-zinc-900 text-sm">Online Payment</p>
+              <p class="text-[10px] text-zinc-400 font-bold uppercase tracking-tighter">UPI, Card, NetBanking</p>
+            </div>
+            <div class="w-5 h-5 rounded-full border-2 border-zinc-200 flex items-center justify-center peer-checked:bg-black peer-checked:border-black transition-all">
+                <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+            </div>
+          </label>
         </div>
       </div>
 
@@ -159,7 +179,7 @@
 
             <input type="hidden" name="couponCode" id="hiddenCouponCode" form="place-order-form">
             <button type="submit" id="placeOrderButton" class="w-full bg-black text-white py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-black/20 hover:-translate-y-1 active:scale-95 transition-all">
-              Place Order (COD)
+              Confirm Order
             </button>
         </div>
       </div>
@@ -217,14 +237,93 @@
 
   const checkoutForm = document.getElementById("place-order-form");
 
-  checkoutForm.addEventListener("submit", function (event) {
-    // Check globally for the selected address since it's outside the form element
+  checkoutForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
     const addressInput = document.querySelector('input[name="addressId"]:checked');
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
 
     if (!addressInput) {
-      event.preventDefault();
-      alert("Please select a delivery address first. If you haven't saved any, please add one below.");
+      alert("Please select a delivery address first.");
       return;
+    }
+
+    const addressId = addressInput.value;
+    const placeBtn = document.getElementById("placeOrderButton");
+    
+    if (paymentMethod === "cod") {
+        // Normal COD submission
+        checkoutForm.submit();
+    } else {
+        // Razorpay Payment Flow
+        try {
+            placeBtn.disabled = true;
+            placeBtn.textContent = "Processing...";
+            
+            // 1. Create Razorpay Order
+            const response = await fetch('/payments/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    addressId, 
+                    paymentMethod: 'card' // Default to card for the gateway, can be UPI/Netbanking too
+                })
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.message || "Failed to initiate payment");
+            }
+
+            // 2. Open Razorpay Popup
+            const options = {
+                key: data.key,
+                amount: data.amount,
+                currency: data.currency,
+                name: data.name,
+                description: data.description,
+                order_id: data.razorpayOrderId,
+                handler: async function (response) {
+                    // 3. Verify Payment
+                    const verifyRes = await fetch('/payments/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature
+                        })
+                    });
+
+                    const verifyData = await verifyRes.json();
+
+                    if (verifyData.success) {
+                        window.location.href = verifyData.redirectUrl || '/orders';
+                    } else {
+                        alert("Payment verification failed: " + verifyData.message);
+                        placeBtn.disabled = false;
+                        placeBtn.textContent = "Confirm Order";
+                    }
+                },
+                prefill: data.prefill,
+                theme: { color: "#000000" },
+                modal: {
+                    ondismiss: function() {
+                        placeBtn.disabled = false;
+                        placeBtn.textContent = "Confirm Order";
+                    }
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+
+        } catch (err) {
+            alert("Payment Error: " + err.message);
+            placeBtn.disabled = false;
+            placeBtn.textContent = "Confirm Order";
+        }
     }
   });
 

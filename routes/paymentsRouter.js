@@ -64,7 +64,11 @@ router.post("/create-order", isLoggedIn, async function (req, res) {
       },
     });
   } catch (err) {
-    return res.status(500).json({ success: false, message: err.message });
+    let errorMessage = err.message;
+    if (errorMessage.includes("Authentication") || errorMessage.includes("401")) {
+        errorMessage = "Razorpay Auth Failed: Please check your RAZORPAY_KEY_ID and SECRET in .env file.";
+    }
+    return res.status(500).json({ success: false, message: errorMessage });
   }
 });
 

@@ -360,8 +360,12 @@
 
     function checkSizeSelected(productId) {
         if (!selectedSizes[productId]) {
-            alert('Please select a size first!');
-            return false;
+            // Auto-select "M" or the first available size instead of alerting
+            const firstSizeBtn = document.querySelector(`.size-selector[data-product-id="${productId}"] button`);
+            if (firstSizeBtn) {
+                firstSizeBtn.click();
+                return true; 
+            }
         }
         return true;
     }
