@@ -36,21 +36,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
-app.use("/owners", ownersRouter);
-app.use("/products", productsRouter);
-app.use("/payments", paymentsRouter);
-app.use("/ai", aiRouter);
-
-app.use(function (req, res) {
-  res.status(404).render("not-found");
-});
-
-app.use(function (err, req, res, next) {
-  console.error(err);
-  res.status(500).render("server-error");
-});
-
 // TEMPORARY: Live site par pehla owner banane ke liye
 app.get("/setup-owner", async (req, res) => {
     try {
@@ -73,6 +58,22 @@ app.get("/setup-owner", async (req, res) => {
         res.status(500).send("Error: " + err.message);
     }
 });
+
+app.use("/users", usersRouter);
+app.use("/owners", ownersRouter);
+app.use("/products", productsRouter);
+app.use("/payments", paymentsRouter);
+app.use("/ai", aiRouter);
+
+app.use(function (req, res) {
+  res.status(404).render("not-found");
+});
+
+app.use(function (err, req, res, next) {
+  console.error(err);
+  res.status(500).render("server-error");
+});
+
 
 app.listen(3000, () => {
   console.log("server started on port 3000");
