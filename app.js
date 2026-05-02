@@ -36,28 +36,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 
 app.use("/", indexRouter);
-// TEMPORARY: Live site par pehla owner banane ke liye
-app.get("/setup-owner", async (req, res) => {
-    try {
-        const ownerModel = require("./models/owner-model");
-        let owners = await ownerModel.find();
-        
-        // Agar pehle se owner hai toh mana kar dega (Security)
-        if (owners.length > 0) {
-            return res.status(403).send("Owner already exists on this database!");
-        }
-
-        let createdOwner = await ownerModel.create({
-            fullname: "Sumit Tiwari",
-            email: "admin@bangerside.com", // Apna email yahan dalo
-            password: "password123",        // Apna password yahan dalo
-        });
-
-        res.send("✅ Owner created successfully! Now delete this code and push again.");
-    } catch (err) {
-        res.status(500).send("Error: " + err.message);
-    }
-});
 
 app.use("/users", usersRouter);
 app.use("/owners", ownersRouter);
