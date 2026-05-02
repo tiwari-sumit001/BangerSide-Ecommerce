@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BANGER SIDE | Premium Streetwear</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* Promo Ticker Animation */
+    @keyframes scroll {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    .ticker-content { display: inline-block; animation: scroll 25s linear infinite; }
+
+    /* Hide body until Tailwind is ready */
+    html:not(.ready) body { visibility: hidden; opacity: 0; }
+    body { visibility: visible !important; opacity: 1 !important; transition: opacity 0.5s ease; }
+    
+    /* Dark Mode Core */
+    html.dark body { background-color: #09090b !important; color: #fafafa !important; }
+    html.dark nav { background-color: rgba(9, 9, 11, 0.8) !important; border-color: #18181b !important; }
+    html.dark .bg-white { background-color: #09090b !important; color: #ffffff !important; }
+    html.dark .bg-zinc-50 { background-color: #121214 !important; }
+    html.dark .border-zinc-100 { border-color: #18181b !important; }
+
+    .magnetic { transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1); }
+  </style>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'] },
+        },
+      },
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      document.documentElement.classList.add('ready');
+    });
+  </script>
+</head>
+
+<body class="font-sans bg-zinc-50 antialiased overflow-x-hidden">
+
+  <!-- Elite Promo Ticker -->
+  <div class="w-full bg-black text-white py-2 overflow-hidden whitespace-nowrap text-[9px] font-black uppercase tracking-[0.4em] relative z-[60]">
+    <div class="ticker-content">
+      🔥 MIDNIGHT VIBE SALE: 50% OFF ON ALL STREETWEAR • FREE SHIPPING ON ORDERS ABOVE ₹1999 • NEW GYM COLLECTION IS LIVE • USE CODE: BANGER50 • 🔥
+    </div>
+  </div>
+
+  <nav class="sticky top-0 z-50 w-full px-10 py-5 bg-white/80 backdrop-blur-xl border-b border-zinc-100 flex justify-between items-center transition-all duration-500">
+    <div class="flex items-center gap-8">
+      <a href="/shop" class="text-2xl font-black tracking-tighter hover:scale-105 transition-transform cursor-pointer">
+        BANGER <span class="text-blue-600">SIDE</span>
+      </a>
+      
+      <div class="hidden md:flex gap-8 text-[11px] font-black uppercase tracking-widest text-zinc-400">
+        <a href="/shop" class="hover:text-black transition-colors">Shop</a>
+        <a href="/wishlist" class="hover:text-black transition-colors">Wishlist</a>
+        <a href="/orders" class="hover:text-black transition-colors">Orders</a>
+        <a href="/owners/login" class="hover:text-black transition-colors font-bold text-zinc-900 border-l border-zinc-200 pl-8">Admin</a>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-8 text-[11px] font-black uppercase tracking-widest">
+      <div class="flex items-center gap-6 pr-8 border-r border-zinc-100">
+        <a href="/cart" class="relative group magnetic">
+          <i class="ri-shopping-bag-3-line text-xl group-hover:text-blue-600 transition-colors"></i>
+          <div class="absolute -top-1.5 -right-2 w-2 h-2 bg-rose-500 rounded-full animate-pulse shadow-lg shadow-rose-500/50"></div>
+        </a>
+        <a href="/profile" class="magnetic w-8 h-8 rounded-full overflow-hidden border-2 border-zinc-100 hover:border-blue-600 transition-all">
+            <img src="https://ui-avatars.com/api/?name=User&background=000&color=fff" class="w-full h-full object-cover">
+        </a>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button id="theme-btn" onclick="toggleTheme()" class="magnetic w-10 h-10 bg-zinc-50 dark:bg-zinc-800 rounded-xl flex items-center justify-center hover:scale-110 transition-all text-lg shadow-sm">🌙</button>
+        <a href="/logout" class="bg-black text-white px-6 py-3 rounded-xl hover:bg-blue-600 hover:scale-105 transition-all shadow-xl shadow-black/20">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div id="loading-bar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-blue-600 to-cyan-400 z-[100] transition-all duration-500 w-0 opacity-0"></div>
+
+  <script>
+    function applyTheme() {
+      const isDark = localStorage.getItem('darkMode') === 'true';
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        document.getElementById('theme-btn').innerText = '☀️';
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.getElementById('theme-btn').innerText = '🌙';
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('darkMode', isDark);
+      applyTheme();
+    }
+
+    let keys = [];
+    document.addEventListener('keydown', (e) => {
+      keys.push(e.key.toLowerCase());
+      keys = keys.slice(-6);
+      if (keys.join('') === 'banger') {
+        confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+        alert('🔥 SECRET UNLOCKED! Use code "BANGER_VIP" for 15% off!');
+        keys = [];
+      }
+    });
+
+    document.querySelectorAll('.magnetic').forEach(btn => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = `translate(0, 0)`;
+      });
+    });
+
+    window.addEventListener('beforeunload', () => {
+      const bar = document.getElementById('loading-bar');
+      if(bar) { bar.style.width = '100%'; bar.style.opacity = '1'; }
+    });
+
+    applyTheme();
+  </script>

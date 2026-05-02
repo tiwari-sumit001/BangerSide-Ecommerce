@@ -1,0 +1,42 @@
+<%- include("./partials/header") %>
+
+<div class="min-h-[70vh] flex flex-col items-center justify-center p-6 bg-gray-50">
+  <div class="bg-white rounded-2xl shadow-xl p-10 max-w-lg w-full text-center transform transition-all">
+    <div class="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-green-100 mb-6">
+      <svg class="h-12 w-12 text-green-600 order-success-check" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+    
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Order Placed!</h1>
+    <p class="text-gray-500 mb-8">
+      Thank you for your purchase. Your order <span class="font-semibold text-black">#<%= order._id %></span> has been received and is being processed.
+    </p>
+
+    <div class="space-y-3">
+      <a href="/orders/<%= order._id %>" class="block w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
+        Track Your Order
+      </a>
+      <a href="/shop" class="block w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 font-semibold py-3 px-4 rounded-lg transition-colors">
+        Continue Shopping
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .order-success-check {
+    stroke-dasharray: 50;
+    stroke-dashoffset: 50;
+    animation: drawCheck 0.6s ease forwards;
+    animation-delay: 0.2s;
+  }
+
+  @keyframes drawCheck {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>
+
+<%- include("./partials/footer") %>

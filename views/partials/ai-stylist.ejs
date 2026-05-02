@@ -1,0 +1,162 @@
+<div id="ai-stylist-btn" onclick="toggleChat()" class="fixed bottom-8 right-8 w-16 h-16 bg-black text-white rounded-full flex items-center justify-center cursor-pointer shadow-2xl hover:scale-110 active:scale-95 transition-all z-[100] group">
+    <span class="text-2xl group-hover:hidden">✨</span>
+    <span class="text-[10px] font-black hidden group-hover:block uppercase tracking-tighter">AI Stylist</span>
+</div>
+
+<div id="ai-chat-window" class="fixed bottom-28 right-8 w-96 h-[550px] bg-white rounded-[2.5rem] shadow-2xl border border-zinc-100 hidden flex-col overflow-hidden z-[100] font-['Outfit']">
+    <!-- Header -->
+    <div class="p-6 bg-black text-white flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center animate-pulse">✨</div>
+            <div>
+                <p class="text-sm font-black uppercase tracking-widest">Banger Side AI</p>
+                <p class="text-[10px] text-zinc-400 font-bold">Smart Fashion Assistant</p>
+            </div>
+        </div>
+        <button onclick="toggleChat()" class="text-zinc-400 hover:text-white">✕</button>
+    </div>
+
+    <!-- Messages -->
+    <div id="chat-messages" class="flex-1 p-6 overflow-y-auto space-y-4 bg-zinc-50">
+        <div class="flex gap-3">
+            <div class="w-8 h-8 bg-zinc-200 rounded-xl flex items-center justify-center shrink-0">✨</div>
+            <div class="flex flex-col gap-3">
+                <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm text-xs leading-relaxed text-zinc-600">
+                    Hi! I'm your AI Stylist. What are you looking for today? Choose an option or type below! 👗
+                </div>
+                <!-- Quick Options -->
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="sendQuickOption('Party Wear')" class="px-4 py-2 bg-zinc-900 text-white rounded-full text-[10px] font-bold hover:scale-105 transition-all">🥂 Party Wear</button>
+                    <button onclick="sendQuickOption('Gym & Sports')" class="px-4 py-2 bg-zinc-900 text-white rounded-full text-[10px] font-bold hover:scale-105 transition-all">💪 Gym Gear</button>
+                    <button onclick="sendQuickOption('Casual Daily')" class="px-4 py-2 bg-zinc-900 text-white rounded-full text-[10px] font-bold hover:scale-105 transition-all">☕ Casuals</button>
+                    <button onclick="sendQuickOption('Street Style')" class="px-4 py-2 bg-zinc-900 text-white rounded-full text-[10px] font-bold hover:scale-105 transition-all">🏙️ Streetwear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input -->
+    <div class="p-4 bg-white border-t border-zinc-100">
+        <form id="ai-chat-form" onsubmit="handleChatSubmit(event)" class="relative">
+            <input type="text" id="ai-user-input" placeholder="Ask for styling advice..." 
+                class="w-full pl-6 pr-12 py-4 bg-zinc-50 border-none rounded-2xl text-xs focus:ring-2 focus:ring-black outline-none transition-all">
+            <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-black text-white rounded-xl flex items-center justify-center text-xs">↑</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleChat() {
+        const window = document.getElementById('ai-chat-window');
+        window.classList.toggle('hidden');
+        window.classList.toggle('flex');
+    }
+
+    function sendQuickOption(opt) {
+        processChatRequest(opt);
+    }
+
+    async function handleChatSubmit(e) {
+        e.preventDefault();
+        const input = document.getElementById('ai-user-input');
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = '';
+        processChatRequest(text);
+    }
+
+    async function processChatRequest(text) {
+        appendMessage('user', text);
+
+        const loadingId = 'ai-loading-' + Date.now();
+        appendMessage('ai', 'Thinking...', loadingId);
+
+        try {
+            const response = await fetch('/ai/stylist', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+            const data = await response.json();
+            updateMessage(loadingId, data);
+        } catch (err) {
+            updateMessage(loadingId, { reply: "Sorry, I'm having trouble connecting right now." });
+        }
+    }
+
+    function appendMessage(sender, content, id = null) {
+        const container = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.className = sender === 'user' ? 'flex justify-end' : 'flex gap-3';
+        div.id = id;
+
+        if (sender === 'user') {
+            div.innerHTML = `<div class="bg-black text-white px-5 py-3 rounded-2xl rounded-tr-none text-xs font-medium leading-relaxed max-w-[80%] shadow-xl shadow-black/5 animate-fade-in">${content}</div>`;
+        } else {
+            div.innerHTML = `
+                <div class="w-8 h-8 bg-zinc-900 rounded-xl flex items-center justify-center shrink-0 shadow-lg">✨</div>
+                <div class="flex flex-col gap-3 max-w-[85%]">
+                    <div class="bg-white px-5 py-3 rounded-2xl rounded-tl-none shadow-sm border border-zinc-100 text-xs leading-relaxed text-zinc-600 animate-fade-in">
+                        ${content}
+                    </div>
+                </div>
+            `;
+        }
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function updateMessage(id, data) {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        const contentWrapper = el.querySelector('div:last-child');
+        
+        let html = `<div class="bg-white px-5 py-3 rounded-2xl rounded-tl-none shadow-sm border border-zinc-100 text-xs leading-relaxed text-zinc-600 animate-fade-in">${data.reply}</div>`;
+        
+        if (data.products && data.products.length > 0) {
+            html += `<div class="flex gap-4 overflow-x-auto pb-4 mt-3 no-scrollbar snap-x">`;
+            data.products.forEach(p => {
+                const imgHtml = p.image 
+                    ? `<img src="data:image/jpeg;base64,${p.image}" class="w-full h-full object-contain p-2 group-hover/img:scale-110 transition-transform duration-500" />`
+                    : `<div class="w-full h-full flex flex-col items-center justify-center bg-zinc-100 text-zinc-300">
+                         <span class="text-xl">👕</span>
+                         <span class="text-[8px] font-black uppercase tracking-tighter mt-1 text-zinc-400">Photo Pending</span>
+                       </div>`;
+                
+                html += `
+                    <div class="min-w-[180px] bg-white rounded-[2rem] p-4 border border-zinc-100 shadow-sm shrink-0 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 snap-center">
+                        <div class="h-32 w-full bg-zinc-50 rounded-2xl mb-4 overflow-hidden relative group/img">
+                            ${imgHtml}
+                            <div class="absolute inset-0 bg-black/0 group-hover/img:bg-black/5 transition-colors"></div>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-[10px] font-black text-zinc-900 truncate tracking-tight">${p.name}</p>
+                            <p class="text-[11px] font-bold text-blue-600">₹${p.price}</p>
+                        </div>
+                        <a href="/shop?search=${encodeURIComponent(p.name)}" class="block mt-4 text-center py-2.5 bg-black text-white rounded-xl text-[9px] font-black uppercase tracking-[0.2em] shadow-lg shadow-black/10 hover:bg-zinc-800 transition-colors">View Piece</a>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+        }
+        
+        contentWrapper.innerHTML = html;
+        const container = document.getElementById('chat-messages');
+        container.scrollTop = container.scrollHeight;
+    }
+</script>
+
+<style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    #ai-stylist-btn { animation: float 3s ease-in-out infinite; }
+</style>

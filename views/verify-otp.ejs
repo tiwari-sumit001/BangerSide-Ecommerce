@@ -1,0 +1,58 @@
+<%- include('./partials/header') %>
+
+<div class="w-full min-h-screen flex items-center justify-center bg-zinc-50 font-['Outfit'] px-6">
+    <div class="w-full max-w-md p-10 bg-white rounded-[3rem] shadow-2xl shadow-black/5 border border-zinc-100 relative overflow-hidden text-center">
+        <!-- Decoration -->
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10">
+            <div class="w-24 h-24 bg-zinc-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-sm">
+                <span class="text-4xl">✉️</span>
+            </div>
+
+            <h2 class="text-3xl font-black text-zinc-900 mb-2">Check Email</h2>
+            <p class="text-zinc-400 text-sm mb-10 leading-relaxed px-4">
+                We've sent a 6-digit verification code to <br> 
+                <span class="text-black font-bold"><%= email %></span>
+            </p>
+
+            <% if (error && error.length > 0) { %>
+                <div class="mb-6 bg-rose-50 text-rose-600 px-6 py-4 rounded-2xl text-xs font-bold border border-rose-100">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <% if (success && success.length > 0) { %>
+                <div class="mb-6 bg-emerald-50 text-emerald-600 px-6 py-4 rounded-2xl text-xs font-bold border border-emerald-100">
+                    <%= success %>
+                </div>
+            <% } %>
+
+            <form action="/users/verify" method="post" class="space-y-6">
+                <input type="hidden" name="email" value="<%= email %>">
+                
+                <input type="text" name="otp" placeholder="Code (6-digits)" 
+                    class="w-full px-6 py-5 bg-zinc-50 border-none rounded-2xl text-center text-3xl font-black tracking-[0.3em] focus:ring-2 focus:ring-black outline-none transition-all placeholder:tracking-normal placeholder:text-sm placeholder:font-medium"
+                    maxlength="6" required autofocus>
+
+                <button class="w-full bg-black text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-black/10 hover:-translate-y-1 active:scale-95 transition-all">
+                    Verify Account
+                </button>
+            </form>
+
+            <div class="mt-12 pt-8 border-t border-zinc-50">
+                <form action="/users/resend-otp" method="post">
+                    <input type="hidden" name="email" value="<%= email %>">
+                    <p class="text-zinc-400 text-xs">
+                        Didn't get the code? 
+                        <button type="submit" class="text-black font-bold hover:underline ml-1">Resend OTP</button>
+                    </p>
+                </form>
+                <a href="/" class="inline-block mt-4 text-[10px] uppercase tracking-widest font-bold text-zinc-300 hover:text-black transition-colors">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('./partials/footer') %>

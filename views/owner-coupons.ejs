@@ -1,0 +1,114 @@
+<%- include('partials/header') %>
+
+<div class="min-h-screen bg-zinc-50 flex font-['Outfit']">
+  <!-- Admin Sidebar -->
+  <div class="w-1/5 bg-white border-r border-zinc-200 p-10 flex flex-col justify-between sticky top-0 h-screen">
+    <div>
+        <div class="flex items-center gap-3 mb-12">
+            <div class="w-10 h-10 bg-black rounded-2xl flex items-center justify-center text-white font-bold italic shadow-lg shadow-black/20">S.</div>
+            <h2 class="font-black text-xl tracking-tighter">BANGER SIDE.ADMIN</h2>
+        </div>
+        
+        <nav class="space-y-2">
+            <a href="/owners/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-black transition-all">
+                <span>Dashboard</span>
+            </a>
+            <a href="/owners/admin" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-black transition-all">
+                <span>Create New Product</span>
+            </a>
+            <a href="/owners/products" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-black transition-all">
+                <span>Manage Inventory</span>
+            </a>
+            <a href="/owners/orders" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-black transition-all">
+                <span>Orders Log</span>
+            </a>
+            <a href="/owners/coupons" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold bg-black text-white shadow-xl shadow-black/10">
+                <span>Coupon Codes</span>
+            </a>
+        </nav>
+    </div>
+
+    <a href="/owners/logout" class="px-4 py-3 rounded-2xl text-sm font-bold text-rose-500 hover:bg-rose-50 transition-all">
+        Logout System
+    </a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 p-16">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-12">
+            <div>
+                <h1 class="text-4xl font-black text-zinc-900 tracking-tight">Promotions</h1>
+                <p class="text-zinc-400 mt-2">Manage your discount and coupon strategy.</p>
+            </div>
+        </div>
+
+        <% if (success && success.length > 0) { %>
+            <div class="mb-8 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 px-6 py-4 rounded-2xl text-center font-medium">
+                <%= success %>
+            </div>
+        <% } %>
+
+        <% if (error && error.length > 0) { %>
+            <div class="mb-8 bg-rose-500/10 border border-rose-500/20 text-rose-600 px-6 py-4 rounded-2xl text-center font-medium">
+                <%= error %>
+            </div>
+        <% } %>
+
+        <div class="grid grid-cols-3 gap-10">
+            <!-- Create Coupon Form -->
+            <div class="bg-white p-8 rounded-[2.5rem] border border-zinc-100 shadow-sm h-fit">
+                <h3 class="text-xl font-bold mb-6">Create New Code</h3>
+                <form action="/owners/coupons/create" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Code Name</label>
+                        <input type="text" name="code" placeholder="e.g. SIDE20" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all uppercase" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Discount (%)</label>
+                        <input type="number" name="discount" placeholder="20" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" required min="1" max="100">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Expiry Date</label>
+                        <input type="date" name="expiryDate" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" required>
+                    </div>
+                    <button class="w-full bg-black text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-black/10 hover:-translate-y-1 transition-all mt-4">Generate Coupon</button>
+                </form>
+            </div>
+
+            <!-- Coupon List -->
+            <div class="col-span-2 space-y-4">
+                <% if (coupons.length === 0) { %>
+                    <div class="bg-white p-10 rounded-[2.5rem] border border-dashed border-zinc-200 text-center">
+                        <p class="text-zinc-400 font-bold uppercase tracking-widest text-[10px]">No active coupons found</p>
+                    </div>
+                <% } %>
+
+                <% coupons.forEach(function(coupon) { %>
+                    <div class="bg-white p-6 rounded-[2rem] border border-zinc-100 flex items-center justify-between hover:shadow-xl hover:shadow-black/5 transition-all">
+                        <div class="flex items-center gap-6">
+                            <div class="w-16 h-16 bg-zinc-900 text-white rounded-2xl flex flex-col items-center justify-center">
+                                <span class="text-lg font-black"><%= coupon.discount %>%</span>
+                                <span class="text-[8px] font-black uppercase tracking-tighter">OFF</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-black text-zinc-900 tracking-tight"><%= coupon.code %></h4>
+                                <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Expires: <%= coupon.expiryDate.toDateString() %></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                             <% if (new Date(coupon.expiryDate) < new Date()) { %>
+                                <span class="px-3 py-1 bg-rose-50 text-rose-500 text-[8px] font-black uppercase rounded-full">Expired</span>
+                             <% } else { %>
+                                <span class="px-3 py-1 bg-emerald-50 text-emerald-500 text-[8px] font-black uppercase rounded-full">Active</span>
+                             <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

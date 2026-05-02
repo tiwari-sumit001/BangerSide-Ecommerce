@@ -1,0 +1,81 @@
+<%- include("./partials/header") %>
+
+<div class="max-w-6xl mx-auto px-6 py-10">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Your Wishlist</h1>
+    <% if (user.wishlist && user.wishlist.length > 0) { %>
+      <a href="/wishlist/empty" class="text-sm font-semibold text-red-600 hover:text-red-800 transition-colors bg-red-50 hover:bg-red-100 px-4 py-2 rounded-md">
+        Empty Wishlist
+      </a>
+    <% } %>
+  </div>
+
+  <% if (success && success.length > 0) { %>
+    <div class="rounded-md bg-green-500 px-4 py-3 text-white mb-6 shadow">
+      <%= success %>
+    </div>
+  <% } %>
+
+  <% if (error && error.length > 0) { %>
+    <div class="rounded-md bg-red-500 px-4 py-3 text-white mb-6 shadow">
+      <%= error %>
+    </div>
+  <% } %>
+
+  <% if (!user.wishlist || user.wishlist.length === 0) { %>
+    <div class="bg-white rounded-xl shadow-md p-10 text-center max-w-md mx-auto mt-10">
+      <div class="h-20 w-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold mb-2 text-gray-800">Your wishlist is empty</h2>
+      <p class="text-gray-500 mb-6">Save your favorite items here to buy them later.</p>
+      <a href="/shop" class="inline-block bg-black hover:bg-gray-800 text-white font-semibold px-6 py-3 rounded-lg transition-colors">
+        Explore Products
+      </a>
+    </div>
+  <% } else { %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <% user.wishlist.forEach(function(product) { %>
+        <% if (product) { %>
+          <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
+            <div class="relative w-full h-60 bg-gray-50 flex items-center justify-center p-4">
+              <% let img = product.image 
+                ? "data:image/jpeg;base64," + product.image.toString('base64')
+                : "https://via.placeholder.com/300"; %>
+              <img
+                class="max-h-full object-contain mix-blend-multiply transition-transform group-hover:scale-105"
+                src="<%= img %>"
+                alt="<%= product.name %>"
+              >
+              <a href="/wishlist/remove/<%= product._id %>" class="absolute top-3 right-3 bg-white/80 backdrop-blur hover:bg-white text-red-500 p-2 rounded-full shadow-sm hover:shadow transition-all" title="Remove from wishlist">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </a>
+            </div>
+
+            <div class="p-5 border-t border-gray-100">
+              <h2 class="text-lg font-bold text-gray-900 truncate mb-1"><%= product.name %></h2>
+              <div class="flex items-center gap-2 mb-4">
+                <p class="font-semibold text-lg">Rs. <%= product.price - (product.discount || 0) %></p>
+                <% if (product.discount > 0) { %>
+                  <p class="text-sm text-gray-500 line-through">Rs. <%= product.price %></p>
+                <% } %>
+              </div>
+              <a href="/addtocart/<%= product._id %>" class="block w-full text-center bg-black hover:bg-gray-800 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Move to Cart
+              </a>
+            </div>
+          </div>
+        <% } %>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+
+<%- include("./partials/footer") %>

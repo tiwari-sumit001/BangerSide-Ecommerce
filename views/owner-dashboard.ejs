@@ -1,0 +1,208 @@
+<%- include('partials/header') %>
+
+<div class="min-h-screen bg-zinc-50 flex font-['Outfit']">
+  <!-- Admin Sidebar -->
+  <div class="w-1/5 bg-white border-r border-zinc-200 p-10 flex flex-col justify-between sticky top-0 h-screen">
+    <div>
+        <div class="flex items-center gap-3 mb-12">
+            <div class="w-10 h-10 bg-black rounded-2xl flex items-center justify-center text-white font-bold italic shadow-lg shadow-black/20">S.</div>
+            <h2 class="font-black text-xl tracking-tighter">BANGER SIDE.ADMIN</h2>
+        </div>
+        
+        <nav class="space-y-2">
+            <a href="/owners/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold bg-black text-white shadow-xl shadow-black/10">
+                <span>Dashboard</span>
+            </a>
+            <a href="/owners/admin" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-black transition-all">
+                <span>Create New Product</span>
+            </a>
+            <a href="/owners/products" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-black transition-all">
+                <span>Manage Inventory</span>
+            </a>
+            <a href="/owners/orders" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-black transition-all">
+                <span>Orders Log</span>
+            </a>
+            <a href="/owners/coupons" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-black transition-all">
+                <span>Coupon Codes</span>
+            </a>
+        </nav>
+    </div>
+
+    <a href="/owners/logout" class="px-4 py-3 rounded-2xl text-sm font-bold text-rose-500 hover:bg-rose-50 transition-all">
+        Logout System
+    </a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 p-16">
+    <div class="max-w-6xl mx-auto">
+        <div class="mb-12">
+            <p class="text-xs font-black uppercase tracking-[0.2em] text-zinc-400 mb-2">Systems Overview</p>
+            <h1 class="text-4xl font-black text-zinc-900 tracking-tight">Welcome, <span class="text-blue-600"><%= owner ? owner.fullname : "Admin" %></span></h1>
+        </div>
+
+        <!-- Big Metrics -->
+        <div class="grid grid-cols-4 gap-8 mb-12">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-zinc-100">
+                <p class="text-[10px] font-black uppercase text-zinc-400 tracking-widest mb-4">Total Revenue</p>
+                <p class="text-3xl font-black text-black">₹<%= stats.totalRevenue %></p>
+                <div class="mt-4 flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-full">+12.5%</span>
+                    <span class="text-[10px] text-zinc-300 font-medium tracking-wide italic">vs last month</span>
+                </div>
+            </div>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-zinc-100">
+                <p class="text-[10px] font-black uppercase text-zinc-400 tracking-widest mb-4">Total Orders</p>
+                <p class="text-3xl font-black text-black"><%= stats.totalOrders %></p>
+                <div class="mt-4 flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-1 rounded-full"><%= stats.placedOrders %> Pending</span>
+                </div>
+            </div>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-zinc-100">
+                <p class="text-[10px] font-black uppercase text-zinc-400 tracking-widest mb-4">Inventory Size</p>
+                <p class="text-3xl font-black text-black"><%= stats.productCount %></p>
+                <div class="mt-4 flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-zinc-400 bg-zinc-50 px-2 py-1 rounded-full">Live SKUs</span>
+                </div>
+            </div>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-zinc-100">
+                <p class="text-[10px] font-black uppercase text-zinc-400 tracking-widest mb-4">Delivery Rate</p>
+                <% let rate = stats.totalOrders > 0 ? Math.round((stats.deliveredOrders/stats.totalOrders)*100) : 0 %>
+                <p class="text-3xl font-black text-black"><%= rate %>%</p>
+                <div class="mt-4 flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-zinc-400 bg-zinc-50 px-2 py-1 rounded-full"><%= stats.deliveredOrders %> Fulfilled</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Status Pills -->
+        <div class="bg-black p-8 rounded-[3rem] shadow-2xl shadow-black/20 mb-12 flex items-center justify-around">
+            <div class="text-center">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Placed</p>
+                <p class="text-xl font-black text-white"><%= stats.placedOrders %></p>
+            </div>
+            <div class="w-px h-8 bg-zinc-800"></div>
+            <div class="text-center">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Packed</p>
+                <p class="text-xl font-black text-white"><%= stats.packedOrders %></p>
+            </div>
+            <div class="w-px h-8 bg-zinc-800"></div>
+            <div class="text-center">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Shipped</p>
+                <p class="text-xl font-black text-white"><%= stats.shippedOrders %></p>
+            </div>
+            <div class="w-px h-8 bg-zinc-800"></div>
+            <div class="text-center">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">Cancelled</p>
+                <p class="text-xl font-black text-rose-500"><%= stats.cancelledOrders %></p>
+            </div>
+        </div>
+
+        <!-- Charts & Analytics -->
+        <div class="grid grid-cols-3 gap-8 mb-12">
+            <div class="col-span-2 bg-white p-10 rounded-[3.5rem] shadow-sm border border-zinc-100">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-xl font-black text-black tracking-tight">Revenue Trend</h3>
+                    <div class="flex gap-2">
+                        <span class="px-3 py-1 bg-zinc-50 rounded-full text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Live</span>
+                    </div>
+                </div>
+                <canvas id="revenueChart" height="150"></canvas>
+            </div>
+            <div class="bg-black p-10 rounded-[3.5rem] shadow-2xl shadow-black/20 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-xl font-black text-white tracking-tight mb-2">Growth Metric</h3>
+                    <p class="text-zinc-500 text-xs leading-relaxed">Your store is performing 24% better than last quarter.</p>
+                </div>
+                <div class="pt-8 border-t border-zinc-800">
+                    <p class="text-4xl font-black text-blue-500">+24%</p>
+                    <p class="text-[10px] text-zinc-500 uppercase tracking-widest mt-2">Conversion Rate</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-[2.5rem] border border-zinc-100 shadow-sm overflow-hidden">
+            <div class="p-10 flex items-center justify-between border-b border-zinc-50">
+                <h2 class="text-2xl font-black text-zinc-900 tracking-tight">Recent Activity</h2>
+                <a href="/owners/orders" class="px-6 py-3 bg-zinc-100 rounded-2xl text-xs font-bold hover:bg-black hover:text-white transition-all">VIEW FULL LOG</a>
+            </div>
+
+            <div class="p-10">
+                <% if (recentOrders.length === 0) { %>
+                    <div class="py-20 text-center">
+                        <p class="text-zinc-400 font-medium italic">No active orders in the last 24 hours.</p>
+                    </div>
+                <% } else { %>
+                    <div class="space-y-4">
+                        <% recentOrders.forEach(function(order) { %>
+                            <a href="/owners/orders/<%= order._id %>" class="group flex items-center justify-between p-6 rounded-3xl bg-zinc-50 hover:bg-white hover:shadow-xl hover:shadow-black/5 border border-transparent hover:border-zinc-100 transition-all">
+                                <div class="flex items-center gap-6">
+                                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center font-black text-xs shadow-sm group-hover:rotate-6 transition-transform">
+                                        #ID
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-black text-zinc-900 uppercase tracking-widest">Order <%= order._id.toString().slice(-6).toUpperCase() %></p>
+                                        <p class="text-xs text-zinc-400 mt-1"><%= new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %> | <%= new Date(order.createdAt).toDateString() %></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-10">
+                                    <div class="text-right">
+                                        <p class="text-lg font-black text-black">₹<%= order.pricing.finalAmount %></p>
+                                        <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-400"><%= order.items.length %> Items</p>
+                                    </div>
+                                    <div class="px-4 py-2 bg-white rounded-full border border-zinc-200 text-[10px] font-black uppercase tracking-widest text-zinc-600 group-hover:bg-black group-hover:text-white group-hover:border-black transition-all">
+                                        <%= order.orderStatus %>
+                                    </div>
+                                </div>
+                            </a>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Revenue',
+                data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
+                borderColor: '#000000',
+                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                borderWidth: 4,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#3b82f6',
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { display: false },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { family: 'Outfit', size: 10, weight: 'bold' },
+                        color: '#a1a1aa'
+                    }
+                }
+            },
+            interaction: { intersect: false, mode: 'index' }
+        }
+    });
+</script>

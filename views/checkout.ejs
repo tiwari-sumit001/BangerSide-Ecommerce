@@ -1,0 +1,240 @@
+<%- include("./partials/header") %>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<div class="max-w-6xl mx-auto px-6 py-10 grid grid-cols-2 gap-8">
+  <div class="space-y-8">
+    <% if (success && success.length > 0) { %>
+      <div class="rounded-md bg-blue-500 px-4 py-2 text-white">
+        <%= success %>
+      </div>
+    <% } %>
+
+    <% if (error && error.length > 0) { %>
+      <div class="rounded-md bg-red-500 px-4 py-2 text-white">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <div class="bg-white rounded-3xl shadow-2xl shadow-black/5 p-8 border border-zinc-100">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-black text-zinc-900">Delivery Address</h2>
+        <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400"><%= user.addresses.length %> Saved</span>
+      </div>
+
+      <% if (user.addresses.length === 0) { %>
+        <div class="p-10 border-2 border-dashed border-zinc-100 rounded-[2rem] text-center">
+            <p class="text-sm text-zinc-400 font-medium">No saved addresses found.</p>
+        </div>
+      <% } %>
+
+      <div class="grid grid-cols-1 gap-4">
+        <% user.addresses.forEach(function(address) { %>
+          <label class="group relative cursor-pointer">
+            <input type="radio" form="place-order-form" name="addressId" value="<%= address._id %>" <%= address.isDefault ? "checked" : "" %> class="peer hidden">
+            <div class="p-6 rounded-[2rem] border-2 border-zinc-100 bg-zinc-50/50 peer-checked:border-black peer-checked:bg-white transition-all duration-300 hover:border-zinc-300">
+              <div class="flex items-start justify-between">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <p class="font-black text-zinc-900"><%= address.fullName %></p>
+                    <% if (address.isDefault) { %>
+                        <span class="px-2 py-0.5 bg-black text-white text-[8px] font-black uppercase tracking-tighter rounded-md">Default</span>
+                    <% } %>
+                  </div>
+                  <p class="text-xs text-zinc-500 leading-relaxed max-w-[250px]"><%= address.street %>, <%= address.city %>, <%= address.state %> - <%= address.pincode %></p>
+                  <p class="text-xs font-bold text-zinc-400 pt-2"><%= address.phone %></p>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 border-zinc-200 flex items-center justify-center peer-checked:bg-black peer-checked:border-black transition-all">
+                    <div class="w-2 h-2 bg-white rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Custom Radio Circle Overlay (since input is hidden) -->
+            <div class="absolute top-6 right-6 w-5 h-5 rounded-full border-2 border-zinc-200 peer-checked:border-black peer-checked:bg-black transition-all flex items-center justify-center">
+                <div class="w-1.5 h-1.5 bg-white rounded-full opacity-0 peer-checked:opacity-100"></div>
+            </div>
+          </label>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-2xl shadow-black/5 p-8 border border-zinc-100">
+      <h2 class="text-2xl font-black text-zinc-900 mb-6">Add New Address</h2>
+
+      <form action="/addresses" method="post" class="grid grid-cols-2 gap-4">
+        <input name="fullName" placeholder="Full Name" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" required>
+        <input name="phone" placeholder="Phone Number" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" required>
+        <input name="pincode" placeholder="Pincode" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" required>
+        <input name="city" placeholder="City" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" required>
+        <input name="state" placeholder="State" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" required>
+        <input name="country" placeholder="Country" value="India" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" required>
+        <textarea name="street" placeholder="Street Address" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all col-span-2 h-24 resize-none" required></textarea>
+
+        <label class="col-span-2 flex items-center gap-3 text-xs font-bold text-zinc-500 uppercase tracking-widest cursor-pointer">
+          <input type="checkbox" name="isDefault" class="w-4 h-4 accent-black">
+          Set as default delivery address
+        </label>
+
+        <button class="col-span-2 bg-zinc-900 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-black/10 hover:-translate-y-1 active:scale-95 transition-all mt-4">Save Address</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-[3rem] shadow-2xl shadow-black/5 p-10 border border-zinc-100 h-fit sticky top-10">
+    <h2 class="text-3xl font-black text-zinc-900 mb-8">Summary</h2>
+
+    <div class="space-y-6 mb-10">
+      <% cartItems.forEach(function(item) { %>
+        <div class="flex gap-4 pb-6 border-b border-zinc-50">
+          <div class="w-16 h-16 bg-zinc-50 rounded-2xl flex-shrink-0 overflow-hidden">
+             <% let itemImg = item.product.image ? "data:image/jpeg;base64," + item.product.image.toString("base64") : "https://via.placeholder.com/64"; %>
+             <img src="<%= itemImg %>" class="w-full h-full object-contain p-2">
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-black text-zinc-900 truncate text-sm uppercase tracking-tight"><%= item.product.name %></p>
+            <div class="flex items-center gap-3 mt-1">
+                <span class="text-[10px] font-bold text-zinc-400 uppercase">Qty: <%= item.quantity %></span>
+                <span class="text-[10px] font-bold text-zinc-400 uppercase">Size: <%= item.size %></span>
+            </div>
+            <p class="text-xs font-black text-zinc-900 mt-2">Rs. <%= item.lineTotal %></p>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <form id="place-order-form" action="/checkout" method="post" class="space-y-6">
+      <div class="bg-zinc-50 p-6 rounded-3xl space-y-4">
+        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Payment Strategy</label>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">💵</div>
+          <div>
+            <p class="font-black text-zinc-900 text-sm">Cash on Delivery</p>
+            <p class="text-[10px] text-zinc-400 font-bold uppercase tracking-tighter">Pay at your doorstep</p>
+          </div>
+          <input type="hidden" name="paymentMethod" value="cod">
+        </div>
+      </div>
+
+      <div class="space-y-6 mb-10">
+        <!-- Coupon Section -->
+        <div class="bg-zinc-50 p-6 rounded-3xl space-y-4">
+            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Promotional Code</label>
+            <div class="flex gap-2">
+                <input type="text" id="couponInput" placeholder="Enter Code (e.g. SIDE20)" class="flex-1 px-4 py-3 bg-white border-none rounded-xl text-xs focus:ring-2 focus:ring-black outline-none transition-all uppercase">
+                <button type="button" onclick="validateCoupon()" class="px-6 py-3 bg-black text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all">Apply</button>
+            </div>
+            <p id="couponMessage" class="text-[9px] font-bold hidden"></p>
+        </div>
+
+        <div class="space-y-3 px-2">
+          <div class="flex justify-between text-xs font-bold text-zinc-400 uppercase tracking-widest">
+            <span>Subtotal</span>
+            <span class="text-zinc-900">Rs. <span id="displayMRP"><%= totalMRP %></span></span>
+          </div>
+          <div class="flex justify-between text-xs font-bold text-emerald-500 uppercase tracking-widest">
+            <span>Bag Discount</span>
+            <span>- Rs. <%= discount %></span>
+          </div>
+          <div id="couponRow" class="flex justify-between text-xs font-bold text-blue-500 uppercase tracking-widest hidden">
+            <span>Coupon (<span id="couponPercent">0</span>%)</span>
+            <span>- Rs. <span id="couponAmount">0</span></span>
+          </div>
+          <div class="flex justify-between text-xs font-bold text-zinc-400 uppercase tracking-widest">
+            <span>Platform Fee</span>
+            <span class="text-zinc-900">Rs. <%= platformFee %></span>
+          </div>
+          <div class="flex justify-between text-xs font-bold text-zinc-400 uppercase tracking-widest">
+            <span>Delivery</span>
+            <span class="text-emerald-500">FREE</span>
+          </div>
+        </div>
+
+        <div class="pt-6 border-t border-zinc-100">
+            <div class="flex justify-between items-end mb-8">
+              <div>
+                  <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Grand Total</p>
+                  <p class="text-4xl font-black text-zinc-900 tracking-tighter">₹<span id="displayFinal"><%= finalAmount %></span></p>
+              </div>
+            </div>
+
+            <input type="hidden" name="couponCode" id="hiddenCouponCode" form="place-order-form">
+            <button type="submit" id="placeOrderButton" class="w-full bg-black text-white py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-black/20 hover:-translate-y-1 active:scale-95 transition-all">
+              Place Order (COD)
+            </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+    let baseFinalAmount = <%= finalAmount %>;
+    let baseDiscount = <%= discount %>;
+    
+    async function validateCoupon() {
+        const code = document.getElementById('couponInput').value.trim();
+        const msg = document.getElementById('couponMessage');
+        const couponRow = document.getElementById('couponRow');
+        const couponPercent = document.getElementById('couponPercent');
+        const couponAmountLabel = document.getElementById('couponAmount');
+        const displayFinal = document.getElementById('displayFinal');
+        const hiddenCoupon = document.getElementById('hiddenCouponCode');
+
+        if (!code) return;
+
+        try {
+            const response = await fetch('/validate-coupon', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                msg.textContent = `Success! ${data.discount}% discount applied.`;
+                msg.className = "text-[9px] font-bold text-emerald-500 block";
+                
+                const couponDiscount = Math.round(baseFinalAmount * (data.discount / 100));
+                const newFinal = baseFinalAmount - couponDiscount;
+
+                couponRow.classList.remove('hidden');
+                couponPercent.textContent = data.discount;
+                couponAmountLabel.textContent = couponDiscount;
+                displayFinal.textContent = newFinal;
+                hiddenCoupon.value = code;
+            } else {
+                msg.textContent = data.message;
+                msg.className = "text-[9px] font-bold text-rose-500 block";
+                couponRow.classList.add('hidden');
+                displayFinal.textContent = baseFinalAmount;
+                hiddenCoupon.value = "";
+            }
+        } catch (err) {
+            msg.textContent = "Error validating coupon.";
+            msg.className = "text-[9px] font-bold text-rose-500 block";
+        }
+    }
+
+  const checkoutForm = document.getElementById("place-order-form");
+
+  checkoutForm.addEventListener("submit", function (event) {
+    // Check globally for the selected address since it's outside the form element
+    const addressInput = document.querySelector('input[name="addressId"]:checked');
+
+    if (!addressInput) {
+      event.preventDefault();
+      alert("Please select a delivery address first. If you haven't saved any, please add one below.");
+      return;
+    }
+  });
+
+  // Ensure first address is checked if none is marked as default
+  window.addEventListener('DOMContentLoaded', () => {
+    const addresses = document.querySelectorAll('input[name="addressId"]');
+    if (addresses.length > 0 && !document.querySelector('input[name="addressId"]:checked')) {
+        addresses[0].checked = true;
+    }
+  });
+</script>
+
+<%- include("./partials/footer") %>

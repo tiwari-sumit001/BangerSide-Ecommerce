@@ -1,0 +1,244 @@
+<%- include('partials/header') %>
+
+<div class="min-h-screen bg-zinc-50 flex font-['Outfit']">
+  <!-- Admin Sidebar -->
+  <div class="w-1/5 bg-white border-r border-zinc-200 p-10 flex flex-col justify-between sticky top-0 h-screen">
+    <div>
+        <div class="flex items-center gap-3 mb-12">
+            <div class="w-10 h-10 bg-black rounded-2xl flex items-center justify-center text-white font-bold italic shadow-lg shadow-black/20">S.</div>
+            <h2 class="font-black text-xl tracking-tighter">BANGER SIDE.ADMIN</h2>
+        </div>
+        
+        <nav class="space-y-2">
+            <a href="/owners/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-black transition-all">
+                <span>Dashboard</span>
+            </a>
+            <a href="/owners/admin" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-black transition-all">
+                <span>Create New Product</span>
+            </a>
+            <a href="/owners/products" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold bg-black text-white shadow-xl shadow-black/10">
+                <span>Manage Inventory</span>
+            </a>
+            <a href="/owners/orders" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-zinc-500 hover:bg-zinc-100 hover:text-black transition-all">
+                <span>Orders Log</span>
+            </a>
+        </nav>
+    </div>
+
+    <a href="/owners/logout" class="px-4 py-3 rounded-2xl text-sm font-bold text-rose-500 hover:bg-rose-50 transition-all">
+        Logout System
+    </a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 p-16">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex items-center justify-between mb-12">
+            <div>
+                <h1 class="text-4xl font-black text-zinc-900 tracking-tight">Edit Product</h1>
+                <p class="text-zinc-400 mt-2">Modify existing product details: <span class="text-black font-bold"><%= product.name %></span></p>
+            </div>
+            <a href="/owners/products" class="px-6 py-3 bg-zinc-200 rounded-2xl text-xs font-bold hover:bg-zinc-300 transition-all">BACK TO LIST</a>
+        </div>
+
+        <% if (success && success.length > 0) { %>
+            <div class="mb-8 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 px-6 py-4 rounded-2xl text-center font-medium">
+                <%= success %>
+            </div>
+        <% } %>
+
+        <% if (error && error.length > 0) { %>
+            <div class="mb-8 bg-rose-500/10 border border-rose-500/20 text-rose-600 px-6 py-4 rounded-2xl text-center font-medium">
+                <%= error %>
+            </div>
+        <% } %>
+
+        <form action="/products/update/<%= product._id %>" method="POST" enctype="multipart/form-data" class="space-y-8 pb-20">
+            <!-- Visuals -->
+            <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-zinc-100">
+                <h3 class="text-sm font-black uppercase tracking-widest text-zinc-400 mb-8 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-black rounded-full"></span> 01. Visual Assets
+                </h3>
+                
+                <div class="flex flex-col gap-8">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-4 px-1">Current Gallery</label>
+                        <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+                            <% if (product.images && product.images.length > 0) { %>
+                                <% product.images.forEach(img => { %>
+                                    <div class="w-32 h-32 bg-zinc-50 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 border border-zinc-100">
+                                        <img src="data:image/jpeg;base64, <%= img.toString('base64') %>" class="h-full w-full object-cover">
+                                    </div>
+                                <% }) %>
+                            <% } else if (product.image) { %>
+                                <div class="w-32 h-32 bg-zinc-50 rounded-2xl flex items-center justify-center overflow-hidden shrink-0 border border-zinc-100">
+                                    <img src="data:image/jpeg;base64, <%= product.image.toString('base64') %>" class="h-full w-full object-cover">
+                                </div>
+                            <% } else { %>
+                                <div class="w-32 h-32 bg-zinc-50 rounded-2xl flex items-center justify-center border border-dashed border-zinc-200">
+                                    <span class="text-xl">📸</span>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex flex-col justify-end">
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Upload Multiple Angles (Max 5)</label>
+                        <input type="file" name="images" id="imageInput" class="hidden" multiple onchange="previewImages(this)">
+                        <label for="imageInput" class="w-full py-8 bg-zinc-50 rounded-[2rem] border-2 border-dashed border-zinc-200 flex flex-col items-center justify-center cursor-pointer hover:border-black transition-all group/upload overflow-hidden relative">
+                            <div id="uploadPlaceholder" class="flex flex-col items-center">
+                                <span class="text-xs font-bold text-zinc-500 group-hover/upload:text-black transition-colors">Select Angle Shots...</span>
+                                <span class="text-[10px] text-zinc-300 mt-1">High quality JPEG/PNG (Max 5 files)</span>
+                            </div>
+                            <div id="imagePreviewContainer" class="hidden absolute inset-0 bg-white flex gap-2 p-4 overflow-x-auto no-scrollbar">
+                                <!-- Previews will be injected here -->
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function previewImages(input) {
+                    const container = document.getElementById('imagePreviewContainer');
+                    const placeholder = document.getElementById('uploadPlaceholder');
+
+                    container.innerHTML = ''; // Clear existing previews
+
+                    if (input.files && input.files.length > 0) {
+                        placeholder.classList.add('hidden');
+                        container.classList.remove('hidden');
+
+                        Array.from(input.files).slice(0, 5).forEach((file, index) => {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const wrapper = document.createElement('div');
+                                wrapper.className = "w-24 h-full bg-zinc-50 rounded-xl overflow-hidden shrink-0 relative group/p";
+                                wrapper.innerHTML = `
+                                    <img src="${e.target.result}" class="w-full h-full object-cover">
+                                    <div class="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-md py-1 px-2">
+                                        <span class="text-[6px] text-white font-bold uppercase">Angle ${index + 1}</span>
+                                    </div>
+                                `;
+                                container.appendChild(wrapper);
+                            }
+                            reader.readAsDataURL(file);
+                        });
+                    }
+                }
+            </script>
+
+            <!-- Identity -->
+            <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-zinc-100">
+                <h3 class="text-sm font-black uppercase tracking-widest text-zinc-400 mb-8 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-black rounded-full"></span> 02. Product Identity
+                </h3>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Product Name</label>
+                        <input type="text" name="name" value="<%= product.name %>" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Category</label>
+                        <input type="text" name="category" value="<%= product.category %>" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Gender Focus</label>
+                        <select name="gender" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all appearance-none">
+                            <option value="Unisex" <%= product.gender === 'Unisex' ? 'selected' : '' %>>Unisex</option>
+                            <option value="Men" <%= product.gender === 'Men' ? 'selected' : '' %>>Men</option>
+                            <option value="Women" <%= product.gender === 'Women' ? 'selected' : '' %>>Women</option>
+                        </select>
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-4 px-1">Available Sizes</label>
+                        <div class="flex gap-4">
+                            <% ["XS", "S", "M", "L", "XL", "XXL"].forEach(size => { %>
+                                <label class="group relative cursor-pointer">
+                                    <input type="checkbox" name="sizes" value="<%= size %>" class="hidden peer" 
+                                        <%= (product.sizes || []).includes(size) ? 'checked' : '' %>>
+                                    <div class="w-14 h-14 bg-zinc-50 rounded-2xl flex items-center justify-center font-bold text-xs text-zinc-400 border border-transparent peer-checked:bg-black peer-checked:text-white peer-checked:shadow-lg transition-all">
+                                        <%= size %>
+                                    </div>
+                                </label>
+                            <% }) %>
+                        </div>
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Description</label>
+                        <textarea name="description" rows="4" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all"><%= product.description %></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Commercials -->
+            <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-zinc-100">
+                <h3 class="text-sm font-black uppercase tracking-widest text-zinc-400 mb-8 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-black rounded-full"></span> 03. Commercials
+                </h3>
+
+                <div class="grid grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Base Price (₹)</label>
+                        <input type="number" name="price" value="<%= product.price %>" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Discount (₹)</label>
+                        <input type="number" name="discount" value="<%= product.discount %>" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Current Stock</label>
+                        <input type="number" name="quantity" value="<%= product.quantity %>" class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Aesthetic -->
+            <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-zinc-100">
+                <h3 class="text-sm font-black uppercase tracking-widest text-zinc-400 mb-8 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-black rounded-full"></span> 04. Card Aesthetic
+                </h3>
+
+                <div class="grid grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">BG Color</label>
+                        <input type="color" name="bgColor" value="<%= product.bgcolor %>" class="w-full h-14 bg-zinc-50 border-none rounded-2xl p-1 cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Panel Color</label>
+                        <input type="color" name="panelColor" value="<%= product.panelcolor %>" class="w-full h-14 bg-zinc-50 border-none rounded-2xl p-1 cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-2 px-1">Text Color</label>
+                        <input type="color" name="textColor" value="<%= product.textcolor %>" class="w-full h-14 bg-zinc-50 border-none rounded-2xl p-1 cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <button type="submit" id="updateBtn" class="flex-1 bg-black text-white py-6 rounded-[2rem] font-black text-lg shadow-2xl shadow-black/20 hover:-translate-y-1 active:scale-95 transition-all uppercase tracking-widest">
+                    Update Product Data
+                </button>
+                <script>
+                    document.querySelector('form').addEventListener('submit', function() {
+                        const btn = document.getElementById('updateBtn');
+                        btn.innerHTML = '<span class="animate-pulse">Updating Catalogue...</span>';
+                        btn.classList.add('opacity-70', 'cursor-not-allowed');
+                        btn.disabled = true;
+                    });
+                </script>
+                <a href="/owners/products" class="px-10 bg-zinc-200 text-black py-6 rounded-[2rem] font-black text-lg hover:bg-zinc-300 transition-all flex items-center justify-center">
+                    CANCEL
+                </a>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

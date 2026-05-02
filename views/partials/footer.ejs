@@ -1,0 +1,99 @@
+<footer class="bg-black text-white pt-24 pb-12 mt-20">
+    <!-- Shipping Policy Modal -->
+    <div id="shipping-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden p-6">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeShippingModal()"></div>
+        <div class="bg-white dark:bg-zinc-900 w-full max-w-xl rounded-[3rem] p-12 relative shadow-2xl animate-fade-in border border-zinc-100 dark:border-zinc-800">
+            <button onclick="closeShippingModal()" class="absolute top-8 right-8 text-zinc-400 hover:text-black dark:hover:text-white transition-colors">✕</button>
+            <h3 class="text-2xl font-black uppercase tracking-tighter mb-6 text-zinc-900 dark:text-white">Shipping <span class="text-blue-600">Policy</span></h3>
+            <div class="space-y-6 text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
+                <p>🚀 <span class="font-bold">Standard Delivery:</span> 3-5 business days across India.</p>
+                <p>📦 <span class="font-bold">Tracking:</span> You will receive a tracking link via SMS/Email as soon as your order is dispatched.</p>
+                <p>🔄 <span class="font-bold">Returns:</span> 7-day no-questions-asked return policy for all unworn items.</p>
+            </div>
+            <button onclick="closeShippingModal()" class="mt-10 w-full bg-black dark:bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px]">Got it</button>
+        </div>
+    </div>
+
+    <div class="max-w-screen-2xl mx-auto px-10">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-20 mb-20">
+            <!-- Brand -->
+            <div class="col-span-1">
+                <h2 class="text-3xl font-black italic tracking-tighter mb-6">BANGER SIDE.</h2>
+                <p class="text-gray-400 text-sm leading-relaxed mb-8">
+                    Redefining your street style with premium quality and unmatched designs. Shop the latest trends now.
+                </p>
+                <div class="flex gap-4">
+                    <a href="javascript:void(0)" class="w-12 h-12 rounded-2xl border border-zinc-800 flex items-center justify-center hover:bg-white hover:text-black hover:scale-110 transition-all text-xl shadow-xl shadow-black/20">
+                        <i class="ri-facebook-fill"></i>
+                    </a>
+                    <a href="javascript:void(0)" class="w-12 h-12 rounded-2xl border border-zinc-800 flex items-center justify-center hover:bg-white hover:text-black hover:scale-110 transition-all text-xl shadow-xl shadow-black/20">
+                        <i class="ri-instagram-line"></i>
+                    </a>
+                    <a href="javascript:void(0)" class="w-12 h-12 rounded-2xl border border-zinc-800 flex items-center justify-center hover:bg-white hover:text-black hover:scale-110 transition-all text-xl shadow-xl shadow-black/20">
+                        <i class="ri-twitter-x-line"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="font-bold mb-8 uppercase tracking-widest text-xs">Shop</h4>
+                <ul class="space-y-4 text-sm text-gray-400">
+                    <li><a href="/shop?gender=Men" class="hover:text-white transition-colors">Men's Collection</a></li>
+                    <li><a href="/shop?gender=Women" class="hover:text-white transition-colors">Women's Collection</a></li>
+                    <li><a href="/shop?category=Accessories" class="hover:text-white transition-colors">Accessories</a></li>
+                    <li><a href="/shop?sort=newest" class="hover:text-white transition-colors">New Arrivals</a></li>
+                </ul>
+            </div>
+
+            <!-- Support -->
+            <div>
+                <h4 class="font-bold mb-8 uppercase tracking-widest text-xs">Customer Service</h4>
+                <ul class="space-y-4 text-sm text-gray-400">
+                    <li><a href="/orders" class="hover:text-white transition-colors">Track Order</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Returns & Exchanges</a></li>
+                    <li><a href="javascript:void(0)" onclick="openShippingModal()" class="hover:text-white transition-colors">Shipping Policy</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+            <div>
+                <h4 class="font-bold mb-8 uppercase tracking-widest text-xs">Contact Support</h4>
+                <div class="space-y-6 text-white">
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Helpline</p>
+                        <p class="text-lg font-medium">+91 98765 43210</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Email</p>
+                        <p class="text-lg font-medium">support@bangerside.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-12 border-t border-gray-900 flex justify-between items-center text-[10px] uppercase tracking-widest font-bold text-gray-600">
+            <p>&copy; 2026 BANGER SIDE PVT LTD. All rights reserved.</p>
+            <div class="flex gap-8">
+                <span>Terms of Use</span>
+                <span>Cookie Settings</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    function openShippingModal() {
+        document.getElementById('shipping-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeShippingModal() {
+        document.getElementById('shipping-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+</script>
+
+
+</body>
+</html>

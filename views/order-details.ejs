@@ -1,0 +1,132 @@
+<%- include("./partials/header") %>
+
+<div class="max-w-5xl mx-auto px-6 py-10">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <p class="text-sm text-gray-500">Order Details</p>
+      <h1 class="text-3xl font-semibold">Order #<%= order._id %></h1>
+    </div>
+    <a href="/orders" class="bg-black text-white px-4 py-2 rounded-md">Back to Orders</a>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-6 space-y-6">
+    <div class="grid grid-cols-3 gap-6">
+      <div>
+        <p class="text-sm text-gray-500">Placed On</p>
+        <p class="font-semibold"><%= new Date(order.createdAt).toDateString() %></p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Order Status</p>
+        <p class="font-semibold capitalize"><%= order.orderStatus %></p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Payment</p>
+        <p class="font-semibold"><%= order.paymentMethodLabel %></p>
+        <p class="text-sm text-gray-500"><%= order.paymentStatusLabel %></p>
+      </div>
+    </div>
+
+    <% 
+      const statuses = ['placed', 'packed', 'shipped', 'delivered'];
+      const currentIndex = statuses.indexOf(order.orderStatus);
+      const isCancelled = order.orderStatus === 'cancelled';
+    %>
+
+    <% if (isCancelled) { %>
+      <div class="bg-red-50 border border-red-100 p-8 rounded-[2.5rem] flex items-center gap-6">
+        <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center text-red-500 text-3xl">🚫</div>
+        <div>
+          <p class="text-xl font-black uppercase tracking-tighter text-red-600">Order Cancelled</p>
+          <p class="text-sm text-red-400 font-medium">This order has been voided. We hope to see you again soon!</p>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="py-12 px-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-[3rem] border border-zinc-100 dark:border-zinc-800">
+        <div class="relative flex justify-between items-center w-full">
+          <!-- Premium Progress Track -->
+          <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-2 bg-zinc-200 dark:bg-zinc-800 -z-20 rounded-full"></div>
+          
+          <div class="absolute left-0 top-1/2 -translate-y-1/2 h-2 bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.4)] -z-10 rounded-full transition-all duration-1000 ease-out" 
+               style="width: <%= (currentIndex / (statuses.length - 1)) * 100 %>%">
+            <!-- Elite Glowing Truck -->
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-blue-600 p-2.5 rounded-2xl shadow-2xl shadow-blue-500/50 text-white z-10 animate-bounce-gentle">
+              <i class="ri-truck-fill text-xl"></i>
+            </div>
+          </div>
+
+          <% statuses.forEach((status, idx) => { %>
+            <div class="flex flex-col items-center relative">
+              <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-black border-4 transition-all duration-500 <%= idx <= currentIndex ? 'bg-blue-600 border-white dark:border-zinc-900 text-white shadow-xl shadow-blue-500/20 scale-110' : 'bg-white dark:bg-zinc-800 border-zinc-100 dark:border-zinc-700 text-zinc-300' %>">
+                <% if (idx < currentIndex) { %>
+                  <i class="ri-check-line text-lg"></i>
+                <% } else if (idx === currentIndex) { %>
+                  <div class="w-2 h-2 bg-white rounded-full animate-ping"></div>
+                <% } else { %>
+                  <%= idx + 1 %>
+                <% } %>
+              </div>
+              <p class="absolute top-14 text-[10px] font-black uppercase tracking-widest whitespace-nowrap <%= idx <= currentIndex ? 'text-blue-600' : 'text-zinc-400' %>">
+                <%= status %>
+              </p>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="grid grid-cols-2 gap-8">
+      <div>
+        <h2 class="text-lg font-semibold mb-3">Items</h2>
+        <div class="space-y-3">
+          <% order.items.forEach(function(item) { %>
+            <div class="border rounded-lg p-4 flex gap-4">
+              <div class="w-20 h-20 shrink-0 bg-gray-100 rounded overflow-hidden">
+                <img src="<%= item.imageSrc %>" alt="<%= item.name %>" class="w-full h-full object-cover">
+              </div>
+              <div class="flex-1 flex justify-between">
+                <div>
+                  <p class="font-medium text-lg"><%= item.name %></p>
+                  <p class="text-sm text-gray-500 mt-1">Qty: <%= item.quantity %></p>
+                  <p class="text-sm text-gray-500">Price: Rs. <%= item.price %></p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-lg">Rs. <%= (item.price - item.discount) * item.quantity %></p>
+                  <% if (item.discount > 0) { %>
+                    <p class="text-xs text-green-600 mt-1">Saved Rs. <%= item.discount * item.quantity %></p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-lg font-semibold mb-3">Delivery & Payment</h2>
+        <div class="border rounded-lg p-4 space-y-2 text-sm text-gray-700">
+          <p><span class="font-semibold">Name:</span> <%= order.shippingAddress.fullName %></p>
+          <p><span class="font-semibold">Phone:</span> <%= order.shippingAddress.phone %></p>
+          <p><span class="font-semibold">Address:</span> <%= order.shippingAddress.street %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %></p>
+          <p><span class="font-semibold">Gateway:</span> <%= order.paymentGateway || "offline" %></p>
+          <p><span class="font-semibold">Amount:</span> Rs. <%= order.pricing.finalAmount %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes bounce-slow {
+    0%, 100% {
+      transform: translateY(-50%) translateX(50%) translateY(0);
+    }
+    50% {
+      transform: translateY(-50%) translateX(50%) translateY(-5px);
+    }
+  }
+  .bounce-animation {
+    animation: bounce-slow 2s ease-in-out infinite;
+  }
+</style>
+
+<%- include("./partials/footer") %>

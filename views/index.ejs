@@ -1,0 +1,133 @@
+<%- include('./partials/header') %>
+
+<div class="w-full min-h-[calc(100vh-64px)] flex bg-zinc-50 font-['Outfit'] overflow-hidden">
+    <!-- Left Side: Lifestyle Branding -->
+    <div class="w-1/2 bg-black relative flex flex-col justify-between p-20 overflow-hidden">
+        <!-- Abstract Background Shapes -->
+        <div class="absolute top-0 left-0 w-full h-full opacity-40">
+            <div class="absolute -top-1/4 -left-1/4 w-[80%] h-[80%] bg-blue-600 rounded-full blur-[150px] animate-pulse"></div>
+            <div class="absolute -bottom-1/4 -right-1/4 w-[80%] h-[80%] bg-purple-600 rounded-full blur-[150px]"></div>
+        </div>
+
+        <div class="relative z-10">
+            <h1 class="text-8xl font-black italic tracking-tighter text-white mb-6">BANGER SIDE<span class="text-blue-500">.</span></h1>
+            <p class="text-zinc-400 text-xl max-w-md leading-relaxed font-light">
+                Redefining the modern wardrobe with <span class="text-white font-medium">precision-cut</span> essentials and <span class="text-white font-medium">street-ready</span> aesthetics.
+            </p>
+        </div>
+
+        <div class="relative z-10 flex items-end justify-between">
+            <div class="flex gap-12">
+                <div>
+                    <p class="text-5xl font-black text-white">50K+</p>
+                    <p class="text-zinc-500 text-[10px] uppercase tracking-[0.3em] mt-2">Global Community</p>
+                </div>
+                <div>
+                    <p class="text-5xl font-black text-white">100%</p>
+                    <p class="text-zinc-500 text-[10px] uppercase tracking-[0.3em] mt-2">Original Craft</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-zinc-500 text-[10px] uppercase tracking-[0.5em] vertical-text">Est. 2024</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side: Clean Tabbed Auth -->
+    <div class="w-1/2 flex items-center justify-center p-20">
+        <div class="w-full max-w-md">
+            <!-- Messages -->
+            <% if (error && error.length > 0) { %>
+                <div class="mb-8 bg-rose-50 text-rose-500 px-6 py-4 rounded-2xl text-xs font-bold border border-rose-100 animate-shake">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <div class="bg-white rounded-[3rem] shadow-2xl shadow-black/5 border border-zinc-100 overflow-hidden">
+                <!-- Tab Headers -->
+                <div class="flex border-b border-zinc-50">
+                    <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-6 text-xs font-black uppercase tracking-widest transition-all border-b-2 border-black text-black">Login</button>
+                    <button onclick="switchTab('signup')" id="tab-signup" class="flex-1 py-6 text-xs font-black uppercase tracking-widest transition-all border-b-2 border-transparent text-zinc-400 hover:text-black">Register</button>
+                    <button onclick="switchTab('otp')" id="tab-otp" class="flex-1 py-6 text-xs font-black uppercase tracking-widest transition-all border-b-2 border-transparent text-zinc-400 hover:text-black">OTP Login</button>
+                </div>
+
+                <div class="p-10">
+                    <!-- Login Form -->
+                    <div id="form-login" class="space-y-6">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-black text-zinc-900">Welcome Back</h3>
+                            <p class="text-zinc-400 text-xs mt-1">Sign in to your premium account</p>
+                        </div>
+                        <form action="/users/login" method="post" class="space-y-4">
+                            <input class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" type="email" placeholder="Email Address" name="email" required>
+                            <input class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" type="password" placeholder="Password" name="password" required>
+                            <button class="w-full bg-black text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-black/10 hover:-translate-y-1 active:scale-95 transition-all">Enter Store</button>
+                        </form>
+                    </div>
+
+                    <!-- Signup Form -->
+                    <div id="form-signup" class="hidden space-y-6">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-black text-zinc-900">Join Banger Side</h3>
+                            <p class="text-zinc-400 text-xs mt-1">Start your fashion journey today</p>
+                        </div>
+                        <form action="/users/register" method="post" class="space-y-4">
+                            <input class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" type="text" placeholder="Full Name" name="fullname" required>
+                            <input class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" type="email" placeholder="Email" name="email" required>
+                            <input class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" type="tel" placeholder="Contact Number" name="contact" required>
+                            <input class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" type="password" placeholder="Password" name="password" required>
+                            <button class="w-full bg-black text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-black/10 hover:-translate-y-1 active:scale-95 transition-all">Create Profile</button>
+                        </form>
+                    </div>
+
+                    <!-- OTP Form -->
+                    <div id="form-otp" class="hidden space-y-6">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-black text-zinc-900">Fast Login</h3>
+                            <p class="text-zinc-400 text-xs mt-1">Access via one-time password</p>
+                        </div>
+                        <form action="/users/login-otp-request" method="post" class="space-y-4">
+                            <input class="w-full px-6 py-4 bg-zinc-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-black outline-none transition-all" type="tel" placeholder="Phone Number" name="contact" required>
+                            <button class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-blue-500/10 hover:-translate-y-1 active:scale-95 transition-all">Send OTP Code</button>
+                        </form>
+                        <p class="text-[10px] text-center text-zinc-400 uppercase tracking-widest leading-relaxed">By logging in, you agree to our <br> <span class="text-black font-bold">Terms & Conditions</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(tab) {
+        // Forms
+        document.getElementById('form-login').classList.add('hidden');
+        document.getElementById('form-signup').classList.add('hidden');
+        document.getElementById('form-otp').classList.add('hidden');
+        document.getElementById('form-' + tab).classList.remove('hidden');
+
+        // Tabs
+        const tabs = ['login', 'signup', 'otp'];
+        tabs.forEach(t => {
+            const el = document.getElementById('tab-' + t);
+            el.classList.remove('border-black', 'text-black');
+            el.classList.add('border-transparent', 'text-zinc-400');
+        });
+
+        const activeTab = document.getElementById('tab-' + tab);
+        activeTab.classList.remove('border-transparent', 'text-zinc-400');
+        activeTab.classList.add('border-black', 'text-black');
+    }
+</script>
+
+<style>
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    .animate-shake { animation: shake 0.4s ease-in-out; }
+    .vertical-text { writing-mode: vertical-rl; }
+</style>
+
+<%- include('./partials/footer') %>

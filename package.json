@@ -1,21 +1,32 @@
 {
-  "name": "scatch",
+  "name": "banger-side",
   "version": "1.0.0",
-  "description": "",
+  "description": "A full-stack premium e-commerce platform with AI Stylist, OTP Auth, Coupon System, and Razorpay Payments.",
   "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "engines": {
+    "node": ">=18.0.0"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
   "dependencies": {
+    "axios": "^1.15.2",
     "bcrypt": "^6.0.0",
+    "config": "^4.4.1",
+    "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.7",
+    "debug": "^4.4.3",
+    "dotenv": "^17.4.0",
+    "ejs": "^5.0.1",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "fuse.js": "^7.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.3",
-    "multer": "^2.1.1"
+    "multer": "^2.1.1",
+    "natural": "^8.1.1",
+    "nodemailer": "^8.0.7",
+    "twilio": "^6.0.0"
   }
 }
