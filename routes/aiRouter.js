@@ -1,8 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const productModel = require("../models/product-model");
-const natural = require("natural");
-const tokenizer = new natural.WordTokenizer();
 
 // Simple Intent Classifier Logic
 const intents = {
