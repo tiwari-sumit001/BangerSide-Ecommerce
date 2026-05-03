@@ -37,6 +37,28 @@ app.set("view engine", "ejs");
 
 app.use("/", indexRouter);
 
+// 👑 TEMPORARY: Railway par pehla owner banane ke liye
+app.get("/setup-owner", async (req, res) => {
+    try {
+        const ownerModel = require("./models/owner-model");
+        let owners = await ownerModel.find();
+        
+        if (owners.length > 0) {
+            return res.status(403).send("Owner already exists! Go to /owners/login");
+        }
+
+        let createdOwner = await ownerModel.create({
+            fullname: "Sumit Tiwari",
+            email: "sumit98765tiwariji@gmail.com", 
+            password: "password123", // Baad mein change kar lena
+        });
+
+        res.send("✅ Owner created successfully! Now you can login at /owners/login. (Don't forget to delete this code later)");
+    } catch (err) {
+        res.status(500).send("Error: " + err.message);
+    }
+});
+
 app.use("/users", usersRouter);
 app.use("/owners", ownersRouter);
 app.use("/products", productsRouter);
