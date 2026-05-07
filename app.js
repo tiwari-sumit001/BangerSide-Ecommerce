@@ -7,6 +7,7 @@ const session = require("express-session");
 const flash = require("connect-flash");
 
 const app = express();
+app.set("trust proxy", 1); // Required for Railway/Render HTTPS cookies
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/usersRouter");
@@ -37,7 +38,7 @@ app.set("view engine", "ejs");
 
 app.use("/", indexRouter);
 
-// 👑 TEMPORARY: Railway par pehla owner banane ke liye
+// 👑 Setup Owner Route (Live hone par ek baar run karein: your-url.up.railway.app/setup-owner)
 app.get("/setup-owner", async (req, res) => {
     try {
         const ownerModel = require("./models/owner-model");
@@ -47,13 +48,16 @@ app.get("/setup-owner", async (req, res) => {
             return res.status(403).send("Owner already exists! Go to /owners/login");
         }
 
+        const bcrypt = require("bcrypt");
+        const hashedPassword = await bcrypt.hash("password123", 10); // Default password
+
         let createdOwner = await ownerModel.create({
             fullname: "Sumit Tiwari",
             email: "sumit98765tiwariji@gmail.com", 
-            password: "password123", // Baad mein change kar lena
+            password: hashedPassword,
         });
 
-        res.send("✅ Owner created successfully! Now you can login at /owners/login. (Don't forget to delete this code later)");
+        res.send("✅ Owner created successfully! Login with password: password123 at /owners/login. IMPORTANT: Change password immediately!");
     } catch (err) {
         res.status(500).send("Error: " + err.message);
     }
