@@ -20,18 +20,11 @@ const sendEmail = async (options) => {
       }
     });
   } else {
-    // Development / Ethereal Email
-    const testAccount = await nodemailer.createTestAccount();
-    transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
-      },
-    });
-    console.log(`Ethereal test account created: ${testAccount.user}`);
+    // 🔧 FAST MOCK MODE — Just Log to Console
+    console.log("------------------------------------------");
+    console.log(`🔥 [RENDER OTP] To: ${options.email} | OTP: ${options.html.match(/\d{6}/)?.[0] || 'N/A'}`);
+    console.log("------------------------------------------");
+    return; // Exit early, don't send real email
   }
 
   const mailOptions = {

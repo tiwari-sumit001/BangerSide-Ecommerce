@@ -18,7 +18,7 @@ const sendSMS = async ({ to, message }) => {
     formattedTo = "+91" + formattedTo;
   }
 
-  // 🚀 ALWAYS LOG OTP FOR RENDER DASHBOARD (So you don't need real Twilio)
+  // 🚀 ALWAYS LOG OTP FOR RENDER DASHBOARD
   console.log("------------------------------------------");
   console.log(`🔥 [RENDER SMS OTP] To: ${formattedTo} | Message: ${message}`);
   console.log("------------------------------------------");
@@ -26,18 +26,16 @@ const sendSMS = async ({ to, message }) => {
   if (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER) {
     // ✅ Production — Real SMS via Twilio
     const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-
-    await client.messages.create({
-      body: message,
-      from: TWILIO_PHONE_NUMBER,
-      to: formattedTo,
-    });
-
-    console.log(`[SMS SENT] To: ${formattedTo}`);
-  } else {
-    // 🔧 Development — Mock mode (print to console)
-    console.log(`[MOCK SMS] To: ${formattedTo} | Message: ${message}`);
-    console.log(`  → Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER in .env to send real SMS`);
+    try {
+      await client.messages.create({
+        body: message,
+        from: TWILIO_PHONE_NUMBER,
+        to: formattedTo,
+      });
+      console.log(`[REAL SMS SENT] To: ${formattedTo}`);
+    } catch (err) {
+      console.log(`[TWILIO ERROR] ${err.message}`);
+    }
   }
 };
 
