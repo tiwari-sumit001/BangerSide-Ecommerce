@@ -18,6 +18,11 @@ const sendSMS = async ({ to, message }) => {
     formattedTo = "+91" + formattedTo;
   }
 
+  // 🚀 ALWAYS LOG OTP FOR RENDER DASHBOARD (So you don't need real Twilio)
+  console.log("------------------------------------------");
+  console.log(`🔥 [RENDER SMS OTP] To: ${formattedTo} | Message: ${message}`);
+  console.log("------------------------------------------");
+
   if (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER) {
     // ✅ Production — Real SMS via Twilio
     const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
