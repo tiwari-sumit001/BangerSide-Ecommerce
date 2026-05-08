@@ -224,7 +224,8 @@ module.exports.resendOtp = async function (req, res) {
     });
 
     req.flash("success", "A new OTP has been sent to your email.");
-    return res.redirect(`/users/verify?email=${encodeURIComponent(email)}`);
+    const resendIdentifier = email || (user && user.contact) || "user";
+    return res.redirect(`/users/verify?email=${encodeURIComponent(resendIdentifier)}`);
   } catch (err) {
     req.flash("error", "Could not resend OTP. Try again later.");
     return res.redirect("/");
