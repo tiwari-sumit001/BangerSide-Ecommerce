@@ -30,8 +30,8 @@ module.exports.registerUser = async function (req, res) {
     if (existingUser) {
       if (!existingUser.isVerified) {
         req.flash("error", "Please verify your account. An OTP was sent previously.");
-        const identifier = existingUser.email || existingUser.contact;
-        return res.redirect(`/users/verify?email=${encodeURIComponent(identifier)}`);
+        const safeIdentifier = existingUser.email || existingUser.contact || "user";
+        return res.redirect(`/users/verify?email=${encodeURIComponent(safeIdentifier)}`);
       }
       req.flash("error", "User already exists with this email or contact.");
       return res.redirect("/");
@@ -76,7 +76,8 @@ module.exports.registerUser = async function (req, res) {
     });
 
     req.flash("success", "Registration successful! OTP sent to your Email & Phone.");
-    return res.redirect(`/users/verify?email=${encodeURIComponent(email)}`);
+    const finalIdentifier = email || contact || "user";
+    return res.redirect(`/users/verify?email=${encodeURIComponent(finalIdentifier)}`);
   } catch (err) {
     req.flash("error", err.message);
     return res.redirect("/");
@@ -116,7 +117,8 @@ module.exports.loginUser = async function (req, res) {
       });
 
       req.flash("error", "Please verify your email first. A new OTP has been sent.");
-      return res.redirect(`/users/verify?email=${encodeURIComponent(email)}`);
+      const loginIdentifier = user.email || user.contact || "user";
+      return res.redirect(`/users/verify?email=${encodeURIComponent(loginIdentifier)}`);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
