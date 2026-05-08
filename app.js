@@ -43,7 +43,7 @@ app.get("/setup-owner", async (req, res) => {
     try {
         const ownerModel = require("./models/owner-model");
         let owners = await ownerModel.find();
-        
+             
         if (owners.length > 0) {
             return res.status(403).send("Owner already exists! Go to /owners/login");
         }
@@ -63,6 +63,11 @@ app.get("/setup-owner", async (req, res) => {
     }
 });
 
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`🚀 Server is officially running on port ${port}`);
+});
+
 app.use("/users", usersRouter);
 app.use("/owners", ownersRouter);
 app.use("/products", productsRouter);
@@ -74,12 +79,13 @@ app.use(function (req, res) {
 });
 
 app.use(function (err, req, res, next) {
-  console.error(err);
+  console.error("🔥 Server Error:", err.message);
   res.status(500).render("server-error");
 });
 
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`server started on port ${port}`);
-});
+
+
+
+
+
