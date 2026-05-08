@@ -38,34 +38,49 @@ app.set("view engine", "ejs");
 
 app.use("/", indexRouter);
 
-// 👑 Setup Owner Route (Live hone par ek baar run karein: your-url.up.railway.app/setup-owner)
+// 👑 Setup Owner Route (Visit once live: your-url.onrender.com/setup-owner)
 app.get("/setup-owner", async (req, res) => {
     try {
         const ownerModel = require("./models/owner-model");
-        let owners = await ownerModel.find();
+        const owners = await ownerModel.find();
              
         if (owners.length > 0) {
             return res.status(403).send("Owner already exists! Go to /owners/login");
         }
 
         const bcrypt = require("bcrypt");
-        const hashedPassword = await bcrypt.hash("password123", 10); // Default password
+        const hashedPassword = await bcrypt.hash("password123", 10); 
 
-        let createdOwner = await ownerModel.create({
+        await ownerModel.create({
             fullname: "Sumit Tiwari",
             email: "sumit98765tiwariji@gmail.com", 
             password: hashedPassword,
         });
 
-        res.send("✅ Owner created successfully! Login with password: password123 at /owners/login. IMPORTANT: Change password immediately!");
+        res.send("✅ Owner created successfully! Login at /owners/login with password: password123. (Change it immediately in DB or Profile)");
     } catch (err) {
         res.status(500).send("Error: " + err.message);
     }
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`🚀 Server is officially running on port ${port}`);
+// 🏁 Production Seed Route (Visit: your-url.onrender.com/seed-data)
+app.get("/seed-data", async (req, res) => {
+    try {
+        const productModel = require("./models/product-model");
+        const count = await productModel.countDocuments();
+        if (count > 5) return res.status(403).send("Database already has products. Use Admin Panel to add more.");
+
+        const seedData = [
+            { name: "BANGER Elite Silk Saree", price: 4999, category: "Saree", gender: "Women", quantity: 25, bgcolor: "#ffffff", panelcolor: "#2563eb", textcolor: "#000000", description: "Premium silk saree for elite occasions." },
+            { name: "Royal Heritage Sherwani", price: 8999, category: "Sherwani", gender: "Men", quantity: 15, bgcolor: "#ffffff", panelcolor: "#2563eb", textcolor: "#000000", description: "Royal ethnic wear for weddings." },
+            { name: "Designer Cotton Kurta", price: 1999, category: "Kurta", gender: "Men", quantity: 40, bgcolor: "#ffffff", panelcolor: "#2563eb", textcolor: "#000000", description: "Comfortable cotton kurta for daily wear." }
+        ];
+
+        await productModel.insertMany(seedData);
+        res.send("✅ Basic products seeded! Login as Admin to add images and more products.");
+    } catch (err) {
+        res.status(500).send("Seed Error: " + err.message);
+    }
 });
 
 app.use("/users", usersRouter);
@@ -73,6 +88,12 @@ app.use("/owners", ownersRouter);
 app.use("/products", productsRouter);
 app.use("/payments", paymentsRouter);
 app.use("/ai", aiRouter);
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`🚀 Server is officially running on port ${port}`);
+});
+
 
 app.use(function (req, res) {
   res.status(404).render("not-found");
