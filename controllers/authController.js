@@ -30,7 +30,8 @@ module.exports.registerUser = async function (req, res) {
     if (existingUser) {
       if (!existingUser.isVerified) {
         req.flash("error", "Please verify your account. An OTP was sent previously.");
-        return res.redirect(`/users/verify?email=${encodeURIComponent(existingUser.email)}`);
+        const identifier = existingUser.email || existingUser.contact;
+        return res.redirect(`/users/verify?email=${encodeURIComponent(identifier)}`);
       }
       req.flash("error", "User already exists with this email or contact.");
       return res.redirect("/");
