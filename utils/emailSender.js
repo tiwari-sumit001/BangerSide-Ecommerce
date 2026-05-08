@@ -8,11 +8,16 @@ const sendEmail = async (options) => {
   if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     // Production / Real Email (Gmail)
     transporter = nodemailer.createTransport({
-      service: "Gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      tls: {
+        rejectUnauthorized: false
+      }
     });
   } else {
     // Development / Ethereal Email
