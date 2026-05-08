@@ -42,6 +42,11 @@ const sendEmail = async (options) => {
     html: options.html,
   };
 
+  // 🚀 ALWAYS LOG OTP FOR RENDER DASHBOARD (So you don't need real Gmail)
+  console.log("------------------------------------------");
+  console.log(`🔥 [RENDER OTP] To: ${options.email} | OTP: ${options.html.match(/\d{6}/)?.[0] || 'N/A'}`);
+  console.log("------------------------------------------");
+
   const info = await transporter.sendMail(mailOptions);
   
   if (!process.env.EMAIL_USER) {
