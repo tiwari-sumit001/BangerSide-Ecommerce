@@ -103,8 +103,10 @@ router.get("/addtocart/:productid", isLoggedIn, async function (req, res) {
 
   const size = req.query.size;
   if (!size) {
+    console.log(`⚠️ AddToCart Failed: Size missing for Product ${req.params.productid}`);
     req.flash("error", "Please select a size first");
-    return res.redirect("/shop");
+    const referer = req.headers.referer || "/shop";
+    return res.redirect(referer);
   }
 
   const existingCartItem = user.cart.find((item) => {
@@ -115,7 +117,7 @@ router.get("/addtocart/:productid", isLoggedIn, async function (req, res) {
 
   if (requestedQuantity > product.quantity) {
     req.flash("error", "You cannot add more than the available stock");
-    return res.redirect("/shop");
+    return res.redirect("/cart");
   }
 
   if (existingCartItem) {
@@ -131,7 +133,7 @@ router.get("/addtocart/:productid", isLoggedIn, async function (req, res) {
   await user.save();
 
   req.flash("success", "Added to cart");
-  return res.redirect("/shop");
+  return res.redirect("/cart");
 });
 
 router.get("/cart", isLoggedIn, async function (req, res) {
@@ -227,17 +229,22 @@ router.get("/wishlist", isLoggedIn, async function (req, res) {
 router.get("/wishlist/add/:productid", isLoggedIn, async function (req, res) {
   const user = await userModel.findById(req.user.id);
   const product = await productModel.findById(req.params.productid);
-  const size = req.query.size || ""; // Get size from query if available
+  let size = req.query.size || ""; 
+
+  console.log(`💖 Wishlist Add: Product=${req.params.productid}, Size=${size}`);
 
   if (!product) {
     req.flash("error", "Product not found");
     return res.redirect("/shop");
   }
 
-  // Check if product with the SAME size is already in wishlist
+  // If size is missing but user clicked wishlist, we can either:
+  // 1. Error out (like cart)
+  // 2. Or add with empty size and let them select in wishlist?
+  // User says they ARE selecting size, so if it's missing here, something is wrong in frontend.
+
   const isAlreadyInWishlist = user.wishlist.some(item => 
-    (item.product && item.product.toString() === req.params.productid) || 
-    (item.toString() === req.params.productid) // Handle legacy IDs
+    (item.product && item.product.toString() === req.params.productid)
   );
 
   if (!isAlreadyInWishlist) {
@@ -248,7 +255,15 @@ router.get("/wishlist/add/:productid", isLoggedIn, async function (req, res) {
     await user.save();
     req.flash("success", "Added to wishlist");
   } else {
-    req.flash("success", "Product is already in your wishlist");
+    // If already in wishlist, maybe update the size?
+    const item = user.wishlist.find(i => i.product.toString() === req.params.productid);
+    if (item && size) {
+        item.size = size;
+        await user.save();
+        req.flash("success", "Wishlist item updated with selected size");
+    } else {
+        req.flash("success", "Product is already in your wishlist");
+    }
   }
 
   const referer = req.headers.referer || "/shop";
