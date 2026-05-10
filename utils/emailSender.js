@@ -8,17 +8,11 @@ const sendEmail = async (options) => {
   if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     // Production / Real Email (Gmail)
     transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // Use STARTTLS
+      service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      tls: {
-        rejectUnauthorized: false,
-        requireTLS: true
-      }
     });
   } else {
     // 🔧 FAST MOCK MODE — Just Log to Console
