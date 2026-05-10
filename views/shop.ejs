@@ -179,7 +179,7 @@
                         
                         <!-- Quick Action Overlay -->
                         <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4 z-20">
-                            <a href="/wishlist/add/<%= product._id %>" onclick="triggerConfetti(); animateWishlist(this)" class="w-14 h-14 bg-white rounded-3xl flex items-center justify-center text-rose-500 shadow-2xl hover:scale-110 active:scale-95 transition-all text-2xl">
+                            <a id="add-to-wishlist-<%= product._id %>" href="/wishlist/add/<%= product._id %>" onclick="triggerConfetti(); animateWishlist(this)" class="w-14 h-14 bg-white rounded-3xl flex items-center justify-center text-rose-500 shadow-2xl hover:scale-110 active:scale-95 transition-all text-2xl">
                                 <i class="ri-heart-fill"></i>
                             </a>
                         </div>
@@ -354,8 +354,14 @@
         btn.classList.remove('bg-white', 'text-gray-400', 'border-gray-100');
         btn.classList.add('bg-black', 'text-white', 'border-black');
         selectedSizes[productId] = size;
+        
+        // Update Cart Link
         const cartLink = document.getElementById(`add-to-cart-${productId}`);
         if (cartLink) cartLink.href = `/addtocart/${productId}?size=${size}`;
+        
+        // Update Wishlist Link
+        const wishlistLink = document.getElementById(`add-to-wishlist-${productId}`);
+        if (wishlistLink) wishlistLink.href = `/wishlist/add/${productId}?size=${size}`;
     }
 
     function checkSizeSelected(productId) {

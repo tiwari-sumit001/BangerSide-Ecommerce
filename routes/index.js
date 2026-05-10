@@ -216,7 +216,7 @@ router.get("/cart/empty", isLoggedIn, async function (req, res) {
 });
 
 router.get("/wishlist", isLoggedIn, async function (req, res) {
-  const user = await userModel.findById(req.user.id).populate("wishlist");
+  const user = await userModel.findById(req.user.id).populate("wishlist.product");
   res.render("wishlist", {
     user,
     error: req.flash("error"),
@@ -227,14 +227,24 @@ router.get("/wishlist", isLoggedIn, async function (req, res) {
 router.get("/wishlist/add/:productid", isLoggedIn, async function (req, res) {
   const user = await userModel.findById(req.user.id);
   const product = await productModel.findById(req.params.productid);
+  const size = req.query.size || ""; // Get size from query if available
 
   if (!product) {
     req.flash("error", "Product not found");
     return res.redirect("/shop");
   }
 
-  if (!user.wishlist.some(id => id.toString() === req.params.productid)) {
-    user.wishlist.push(req.params.productid);
+  // Check if product with the SAME size is already in wishlist
+  const isAlreadyInWishlist = user.wishlist.some(item => 
+    (item.product && item.product.toString() === req.params.productid) || 
+    (item.toString() === req.params.productid) // Handle legacy IDs
+  );
+
+  if (!isAlreadyInWishlist) {
+    user.wishlist.push({
+      product: req.params.productid,
+      size: size
+    });
     await user.save();
     req.flash("success", "Added to wishlist");
   } else {
@@ -247,7 +257,10 @@ router.get("/wishlist/add/:productid", isLoggedIn, async function (req, res) {
 
 router.get("/wishlist/remove/:productid", isLoggedIn, async function (req, res) {
   const user = await userModel.findById(req.user.id);
-  user.wishlist = user.wishlist.filter(id => id.toString() !== req.params.productid);
+  user.wishlist = user.wishlist.filter(item => {
+    const id = item.product ? item.product.toString() : item.toString();
+    return id !== req.params.productid;
+  });
   await user.save();
   req.flash("success", "Removed from wishlist");
   
