@@ -7,18 +7,17 @@ const sendEmail = async (options) => {
 
   if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     // Production / Real Email (Gmail)
+    const sanitizedPass = process.env.EMAIL_PASS.replace(/\s+/g, "");
     transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // Use STARTTLS
+      port: 465,
+      secure: true, // Use SSL
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        pass: sanitizedPass,
       },
-      // 🚀 FORCE IPv4: Cloud providers often have IPv6 issues
-      lookup: (hostname, options, callback) => {
-        require("dns").lookup(hostname, { family: 4 }, callback);
-      },
+      // 🚀 HARD FORCE IPv4
+      family: 4,
       tls: {
         rejectUnauthorized: false,
         servername: "smtp.gmail.com"
