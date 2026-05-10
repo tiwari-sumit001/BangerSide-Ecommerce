@@ -20,7 +20,10 @@ module.exports.registerUser = async function (req, res) {
     fullname = fullname && fullname.trim();
     contact = contact && contact.trim();
 
+    console.log("📩 Registration Attempt:", { email, contact, fullname });
+
     if (!fullname || !email || !password || !contact) {
+      console.log("❌ Missing fields in registration");
       req.flash("error", "All fields including contact are required");
       return res.redirect("/");
     }
@@ -53,11 +56,13 @@ module.exports.registerUser = async function (req, res) {
       otpExpires
     });
 
+    console.log("✅ User created, sending OTP...");
+
     const otpMessage = `Your BANGER SIDE verification code is: ${otp}. Valid for 10 minutes. Do not share this OTP with anyone.`;
 
     // Send OTP via Email
     await sendEmail({
-      email: user.email,
+      email: user.email || email,
       subject: "Verify your BANGER SIDE Account",
       message: otpMessage,
       html: `
@@ -69,14 +74,18 @@ module.exports.registerUser = async function (req, res) {
         </div>`
     });
 
-    // Send OTP via SMS (Real Twilio if configured, mock otherwise)
+    // Send OTP via SMS
     await sendSMS({
-      to: user.contact,
+      to: user.contact || contact,
       message: otpMessage,
     });
 
     req.flash("success", "Registration successful! OTP sent to your Email & Phone.");
-    const finalIdentifier = email || contact || "user";
+    
+    // EXTRA CHECK: Prevent "undefined" from being passed as a string
+    const finalIdentifier = (user && user.email) || email || (user && user.contact) || contact || "user";
+    console.log(`🔗 Redirecting to verify with identifier: ${finalIdentifier}`);
+    
     return res.redirect(`/users/verify?email=${encodeURIComponent(finalIdentifier)}`);
   } catch (err) {
     req.flash("error", err.message);

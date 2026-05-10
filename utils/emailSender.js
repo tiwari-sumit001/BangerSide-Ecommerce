@@ -21,8 +21,10 @@ const sendEmail = async (options) => {
     });
   } else {
     // 🔧 FAST MOCK MODE — Just Log to Console
+    const extractedOtp = options.html ? (options.html.match(/\d{6}/)?.[0] || 'N/A') : 'N/A';
     console.log("------------------------------------------");
-    console.log(`🔥 [RENDER OTP] To: ${options.email} | OTP: ${options.html.match(/\d{6}/)?.[0] || 'N/A'}`);
+    console.log(`🔥 [RENDER OTP] To: ${options.email || 'Unknown'} | OTP: ${extractedOtp}`);
+    console.log("📝 Subject: " + (options.subject || 'No Subject'));
     console.log("------------------------------------------");
     return; // Exit early, don't send real email
   }
@@ -36,8 +38,9 @@ const sendEmail = async (options) => {
   };
 
   // 🚀 ALWAYS LOG OTP FOR RENDER DASHBOARD (So you don't need real Gmail)
+  const extractedOtpAlt = options.html ? (options.html.match(/\d{6}/)?.[0] || 'N/A') : 'N/A';
   console.log("------------------------------------------");
-  console.log(`🔥 [RENDER OTP] To: ${options.email} | OTP: ${options.html.match(/\d{6}/)?.[0] || 'N/A'}`);
+  console.log(`🔥 [RENDER OTP] To: ${options.email || 'Unknown'} | OTP: ${extractedOtpAlt}`);
   console.log("------------------------------------------");
 
   const info = await transporter.sendMail(mailOptions);
