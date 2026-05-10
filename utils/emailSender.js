@@ -13,6 +13,10 @@ const sendEmail = async (options) => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      debug: true, // Show SMTP traffic in logs
+      logger: true, // Show detailed logs
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 10000,
     });
   } else {
     // 🔧 FAST MOCK MODE — Just Log to Console
