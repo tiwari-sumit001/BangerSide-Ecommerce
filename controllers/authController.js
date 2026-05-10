@@ -23,14 +23,16 @@ module.exports.registerUser = async function (req, res) {
     console.log("📩 Registration Attempt:", { email, contact, fullname });
 
     if (!fullname || !email || !password || !contact) {
-      console.log("❌ Missing fields in registration");
+      console.log("❌ STEP 0: Missing fields in registration");
       req.flash("error", "All fields including contact are required");
       return res.redirect("/");
     }
 
+    console.log("🔍 STEP 1: Checking existing user in DB...");
     const existingUser = await userModel.findOne({ $or: [{ email }, { contact }] });
 
     if (existingUser) {
+      console.log("⚠️ STEP 1.1: User already exists");
       if (!existingUser.isVerified) {
         req.flash("error", "Please verify your account. An OTP was sent previously.");
         const safeIdentifier = existingUser.email || existingUser.contact || "user";
@@ -40,12 +42,14 @@ module.exports.registerUser = async function (req, res) {
       return res.redirect("/");
     }
 
+    console.log("🔐 STEP 2: Hashing password...");
     const hashedPassword = await bcrypt.hash(password, 10);
     
     // Generate 6 digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
 
+    console.log("💾 STEP 3: Creating user in MongoDB...");
     const user = await userModel.create({
       email,
       contact,
@@ -56,38 +60,51 @@ module.exports.registerUser = async function (req, res) {
       otpExpires
     });
 
-    console.log("✅ User created, sending OTP...");
+    console.log("✅ STEP 3.1: User created successfully. ID:", user._id);
 
     const otpMessage = `Your BANGER SIDE verification code is: ${otp}. Valid for 10 minutes. Do not share this OTP with anyone.`;
 
     // Send OTP via Email
-    await sendEmail({
-      email: user.email || email,
-      subject: "Verify your BANGER SIDE Account",
-      message: otpMessage,
-      html: `
-        <div style="font-family:sans-serif;max-width:500px;margin:auto;padding:30px;border:1px solid #eee;border-radius:12px">
-          <h2 style="color:#2563eb">Welcome to BANGER SIDE! 🔥</h2>
-          <p>Your email verification OTP is:</p>
-          <h1 style="letter-spacing:8px;color:#1a202c;background:#f3f4f6;padding:16px;border-radius:8px;text-align:center">${otp}</h1>
-          <p style="color:#6b7280;font-size:13px">This OTP is valid for 10 minutes. Do not share it with anyone.</p>
-        </div>`
-    });
+    console.log("📧 STEP 4: Triggering Email OTP...");
+    try {
+      await sendEmail({
+        email: user.email || email,
+        subject: "Verify your BANGER SIDE Account",
+        message: otpMessage,
+        html: `
+          <div style="font-family:sans-serif;max-width:500px;margin:auto;padding:30px;border:1px solid #eee;border-radius:12px">
+            <h2 style="color:#2563eb">Welcome to BANGER SIDE! 🔥</h2>
+            <p>Your email verification OTP is:</p>
+            <h1 style="letter-spacing:8px;color:#1a202c;background:#f3f4f6;padding:16px;border-radius:8px;text-align:center">${otp}</h1>
+            <p style="color:#6b7280;font-size:13px">This OTP is valid for 10 minutes. Do not share it with anyone.</p>
+          </div>`
+      });
+      console.log("📬 STEP 4.1: Email sent successfully");
+    } catch (emailErr) {
+      console.error("🔥 ERROR in Email Sending:", emailErr.message);
+      // We continue even if email fails to try SMS
+    }
 
     // Send OTP via SMS
-    await sendSMS({
-      to: user.contact || contact,
-      message: otpMessage,
-    });
+    console.log("📱 STEP 5: Triggering SMS OTP...");
+    try {
+      await sendSMS({
+        to: user.contact || contact,
+        message: otpMessage,
+      });
+      console.log("📲 STEP 5.1: SMS sent successfully");
+    } catch (smsErr) {
+      console.error("🔥 ERROR in SMS Sending:", smsErr.message);
+    }
 
     req.flash("success", "Registration successful! OTP sent to your Email & Phone.");
     
-    // EXTRA CHECK: Prevent "undefined" from being passed as a string
     const finalIdentifier = (user && user.email) || email || (user && user.contact) || contact || "user";
-    console.log(`🔗 Redirecting to verify with identifier: ${finalIdentifier}`);
+    console.log(`🏁 STEP 6: Redirecting to verify: ${finalIdentifier}`);
     
     return res.redirect(`/users/verify?email=${encodeURIComponent(finalIdentifier)}`);
   } catch (err) {
+    console.error("💥 CRITICAL ERROR in Register Flow:", err);
     req.flash("error", err.message);
     return res.redirect("/");
   }
