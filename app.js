@@ -36,6 +36,12 @@ app.use(flash());
 app.use(express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
 
+// Global middleware for login status
+app.use((req, res, next) => {
+    res.locals.loggedin = req.cookies.token ? true : false;
+    next();
+});
+
 app.use("/", indexRouter);
 
 // 👑 Setup Owner Route (Visit once live: your-url.onrender.com/setup-owner)
@@ -103,10 +109,3 @@ app.use(function (err, req, res, next) {
   console.error("🔥 Server Error:", err.message);
   res.status(500).render("server-error");
 });
-
-
-
-
-
-
-

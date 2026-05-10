@@ -64,8 +64,10 @@
       
       <div class="hidden md:flex gap-8 text-[11px] font-black uppercase tracking-widest text-zinc-400">
         <a href="/shop" class="hover:text-black transition-colors">Shop</a>
-        <a href="/wishlist" class="hover:text-black transition-colors">Wishlist</a>
-        <a href="/orders" class="hover:text-black transition-colors">Orders</a>
+        <% if (loggedin) { %>
+          <a href="/wishlist" class="hover:text-black transition-colors">Wishlist</a>
+          <a href="/orders" class="hover:text-black transition-colors">Orders</a>
+        <% } %>
         <a href="/owners/login" class="hover:text-black transition-colors font-bold text-zinc-900 border-l border-zinc-200 pl-8">Admin</a>
       </div>
     </div>
@@ -76,14 +78,20 @@
           <i class="ri-shopping-bag-3-line text-xl group-hover:text-blue-600 transition-colors"></i>
           <div class="absolute -top-1.5 -right-2 w-2 h-2 bg-rose-500 rounded-full animate-pulse shadow-lg shadow-rose-500/50"></div>
         </a>
-        <a href="/profile" class="magnetic w-8 h-8 rounded-full overflow-hidden border-2 border-zinc-100 hover:border-blue-600 transition-all">
-            <img src="https://ui-avatars.com/api/?name=User&background=000&color=fff" class="w-full h-full object-cover">
-        </a>
+        <% if (loggedin) { %>
+          <a href="/profile" class="magnetic w-8 h-8 rounded-full overflow-hidden border-2 border-zinc-100 hover:border-blue-600 transition-all">
+              <img src="https://ui-avatars.com/api/?name=User&background=000&color=fff" class="w-full h-full object-cover">
+          </a>
+        <% } %>
       </div>
 
       <div class="flex items-center gap-4">
         <button id="theme-btn" onclick="toggleTheme()" class="magnetic w-10 h-10 bg-zinc-50 dark:bg-zinc-800 rounded-xl flex items-center justify-center hover:scale-110 transition-all text-lg shadow-sm">🌙</button>
-        <a href="/logout" class="bg-black text-white px-6 py-3 rounded-xl hover:bg-blue-600 hover:scale-105 transition-all shadow-xl shadow-black/20">Logout</a>
+        <% if (loggedin) { %>
+          <a href="/logout" class="bg-black text-white px-6 py-3 rounded-xl hover:bg-blue-600 hover:scale-105 transition-all shadow-xl shadow-black/20">Logout</a>
+        <% } else { %>
+          <a href="/" class="bg-black text-white px-6 py-3 rounded-xl hover:bg-blue-600 hover:scale-105 transition-all shadow-xl shadow-black/20">Login</a>
+        <% } %>
       </div>
     </div>
   </nav>
