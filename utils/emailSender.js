@@ -9,21 +9,17 @@ const sendEmail = async (options) => {
     // Production / Real Email (Gmail)
     const sanitizedPass = process.env.EMAIL_PASS.replace(/\s+/g, "");
     transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
+      host: "smtp.googlemail.com",
       port: 465,
-      secure: true, // Use SSL
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: sanitizedPass,
       },
-      // 🚀 HARD FORCE IPv4
-      family: 4,
-      tls: {
-        rejectUnauthorized: false,
-        servername: "smtp.gmail.com"
-      },
+      family: 4, // Force IPv4
       debug: true,
-      logger: true
+      logger: true,
+      connectionTimeout: 15000, // Increase timeout to 15s
     });
   } else {
     // 🔧 FAST MOCK MODE — Just Log to Console
