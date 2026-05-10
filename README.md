@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![BANGER SIDE](https://img.shields.io/badge/BANGER_SIDE-Premium_Fashion-2563eb?style=for-the-badge&logo=shopify&logoColor=white)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-BANGER_SIDE-black?style=for-the-badge&logo=render&logoColor=white)](https://bangerside-ecommerce.onrender.com)
 ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express.js-5.x-000000?style=for-the-badge&logo=express&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
@@ -10,7 +10,7 @@
 
 **A full-stack, production-grade e-commerce platform for premium streetwear and ethnic fashion.**
 
-[Live Demo](#) · [Features](#-features) · [Tech Stack](#-tech-stack) · [Getting Started](#-getting-started)
+[Live Demo](https://bangerside-ecommerce.onrender.com) · [Features](#-features) · [Tech Stack](#-tech-stack) · [Getting Started](#-getting-started)
 
 </div>
 
@@ -18,18 +18,17 @@
 
 ## 📸 Preview
 
-> Shop page with AI Mood Search, Coupon System, Voice Search, and Secure Checkout.
+> Shop page with AI Mood Search, Coupon System, and Secure Checkout.
 
 ---
 
 ## ✨ Features
 
 ### 🛍️ Customer Facing
-- **AI Mood Search** — Type a vibe (e.g. "Rooftop Party") and get AI-curated product recommendations with match score & styling notes
-- **🎤 Voice Search** — Web Speech API integrated; speak your vibe, get matched instantly
+- **AI Mood Search** — Type a vibe (e.g. "College first day" or "Rooftop Party") and get AI-curated product recommendations with match score & styling notes
 - **Product Filters** — Filter by gender, price range, category, and sort order
 - **Cart Management** — Add, increase, decrease, remove items; size selection per item
-- **Wishlist** — Add/remove products, full wishlist page
+- **Wishlist** — Add/remove products, full wishlist page with auto-size persistence
 - **Coupon Codes** — Apply discount codes at checkout with server-side validation
 - **Cash on Delivery Checkout** — Streamlined COD flow with address management
 - **Online Payments** — Razorpay integration for UPI & Card payments
@@ -38,8 +37,8 @@
 - **Dark Mode** — System-wide dark mode toggle with localStorage persistence
 
 ### 🔐 Authentication & Security
-- **Email OTP Verification** — Real email via Nodemailer + Gmail SMTP on registration
-- **Phone OTP Login** — Real SMS via Twilio integration (with Indian `+91` auto-prefix)
+- **Email OTP Verification** — Real-time email delivery via Nodemailer + Gmail SMTP
+- **Guest Access** — Browse the store as a guest; authentication mandatory only for cart & wishlist actions
 - **JWT Authentication** — Stateless, role-separated tokens (`user` / `owner`)
 - **Session Security** — httpOnly cookies, sameSite protection, secure in production
 - **OTP Expiry** — 10-minute OTP expiry with resend functionality
@@ -68,7 +67,6 @@
 | **Payments** | Razorpay |
 | **File Upload** | Multer (memory storage → MongoDB Buffer) |
 | **AI Stylist** | Natural.js NLP + Keyword Intent Matching |
-| **Voice Search** | Web Speech API (browser-native) |
 
 ---
 
@@ -97,23 +95,23 @@ BANGER-SIDE/
 │   ├── ownersRouter.js       # Admin panel routes
 │   ├── productsRouter.js     # Product CRUD
 │   ├── paymentsRouter.js     # Razorpay integration
-│   └── aiRouter.js           # AI Mood Stylist
-├── utils/
-│   ├── checkoutHelpers.js    # Cart summary, order creation
-│   ├── emailSender.js        # Nodemailer email utility
-│   ├── smsSender.js          # Twilio SMS utility
-│   ├── razorpay.js           # Razorpay order & verification
-│   ├── orderPresentation.js
-│   └── generateToken.js
-└── views/                    # EJS templates
-    ├── partials/
-    │   ├── header.ejs
-    │   └── footer.ejs
-    ├── shop.ejs
-    ├── checkout.ejs
-    ├── cart.ejs
-    ├── orders.ejs
-    └── ...
+100: │   └── aiRouter.js           # AI Mood Stylist
+101: ├── utils/
+102: │   ├── checkoutHelpers.js    # Cart summary, order creation
+103: │   ├── emailSender.js        # Nodemailer email utility
+104: │   ├── smsSender.js          # Twilio SMS utility
+105: │   ├── razorpay.js           # Razorpay order & verification
+106: │   ├── orderPresentation.js
+107: │   └── generateToken.js
+108: └── views/                    # EJS templates
+109:     ├── partials/
+110:     │   ├── header.ejs
+111:     │   └── footer.ejs
+112:     ├── shop.ejs
+113:     ├── checkout.ejs
+114:     ├── cart.ejs
+115:     ├── orders.ejs
+116:     └── ...
 ```
 
 ---
@@ -123,15 +121,14 @@ BANGER-SIDE/
 ### Prerequisites
 - Node.js 18+
 - MongoDB (local or Atlas)
-- Twilio account (for SMS OTP)
 - Gmail account with App Password (for email OTP)
 
 ### Installation
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/tiwari-sumit001/BangerSide.git
-cd BangerSide
+git clone https://github.com/tiwari-sumit001/BangerSide-Ecommerce.git
+cd BangerSide-Ecommerce
 
 # 2. Install dependencies
 npm install
@@ -144,48 +141,15 @@ cp .env.example .env
 npm start
 ```
 
-### Environment Variables
-
-```env
-# Core
-JWT_KEY=your_strong_jwt_secret
-EXPRESS_SESSION_SECRET=your_session_secret
-NODE_ENV=development
-MONGODB_URI=mongodb://127.0.0.1:27017/scatch
-
-# Payments (Razorpay)
-RAZORPAY_KEY_ID=your_razorpay_key_id
-RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-
-# Email OTP (Gmail App Password)
-EMAIL_USER=your_gmail@gmail.com
-EMAIL_PASS=your_16_char_app_password
-
-# SMS OTP (Twilio)
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_PHONE_NUMBER=+1your_twilio_number
-```
-
-### Create Owner Account
-
-```bash
-# In development mode, send a POST request to create the admin:
-curl -X POST http://localhost:3000/owners/create \
-  -H "Content-Type: application/json" \
-  -d '{"fullname":"Admin","email":"admin@bangerside.com","password":"yourpassword"}'
-```
-
 ---
 
 ## 🔑 Key Implementation Highlights
 
-- **Images stored as Buffer in MongoDB** — no file system dependency, deploy anywhere
-- **Server-side coupon validation** — prevents client-side bypass
-- **Dual OTP channels** — Both email AND SMS sent simultaneously on registration
-- **Stock management** — Automatic stock decrement on order, restoration on cancellation
-- **Role-separated JWT** — Same cookie system, different roles for users vs admin
-- **Graceful degradation** — App works in dev without Twilio/Gmail (mock mode)
+- **Bullet-proof Wishlist Logic** — Fixed critical loop issues by implementing auto-size selection and referer-based redirects.
+- **Images stored as Buffer in MongoDB** — no file system dependency, deploy anywhere.
+- **Server-side coupon validation** — prevents client-side bypass.
+- **Guest-to-User Flow** — Seamless transition from browsing to authenticated checkout.
+- **Stock management** — Automatic stock decrement on order, restoration on cancellation.
 
 ---
 
