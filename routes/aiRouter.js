@@ -84,6 +84,17 @@ router.post("/stylist", async (req, res) => {
             );
             advice = "The 'Urban Explorer' look. We've focused on oversized fits and durable fabrics that work for daily hustle and weekend hangouts.";
             pairingNote = "Vibe Tip: Oversized is in. Pair these with chunky sneakers and a crossbody bag for the full street aesthetic.";
+        } else if (msg.includes("ethnic") || msg.includes("indian") || msg.includes("saree") || msg.includes("sherwani") || msg.includes("kurta")) {
+            filtered = allProducts.filter(p => 
+                p.category?.toLowerCase() === "saree" || 
+                p.category?.toLowerCase() === "kurta" ||
+                p.category?.toLowerCase() === "sherwani" ||
+                p.category?.toLowerCase() === "ethnic" ||
+                p.name?.toLowerCase().includes("royal") ||
+                p.name?.toLowerCase().includes("heritage")
+            );
+            advice = "The 'Royal Heritage' collection. We've curated these pieces to celebrate authentic Indian craftsmanship and timeless ethnic silhouettes.";
+            pairingNote = "Styling Tip: Pair these with traditional footwear like Juttis or Kolhapuris. For sarees, a statement clutch completes the look.";
         } else {
             // General "Vibe" match if no specific keyword
             filtered = allProducts.filter(p => p.name?.toLowerCase().includes(msg) || p.category?.toLowerCase().includes(msg));
