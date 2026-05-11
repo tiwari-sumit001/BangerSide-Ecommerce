@@ -1,54 +1,74 @@
+require("dotenv").config();
 const nodemailer = require("nodemailer");
 
-// For development, we use Ethereal Email (fake SMTP service).
-// If EMAIL_USER and EMAIL_PASS are set in .env, it uses Gmail.
 const sendEmail = async (options) => {
-  let transporter;
+  try {
+    // ✅ Validate required fields
+    if (!options || !options.email) {
+      throw new Error("Recipient email is required");
+    }
 
-  if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-    // Production / Real Email (Gmail)
-    const sanitizedPass = process.env.EMAIL_PASS.replace(/\s+/g, "");
-    transporter = nodemailer.createTransport({
-      host: "smtp.googlemail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: sanitizedPass,
-      },
-      family: 4, // Force IPv4
-      debug: true,
-      logger: true,
-      connectionTimeout: 15000, // Increase timeout to 15s
-    });
-  } else {
-    // 🔧 FAST MOCK MODE — Just Log to Console
-    const extractedOtp = options.html ? (options.html.match(/\d{6}/)?.[0] || 'N/A') : 'N/A';
-    console.log("------------------------------------------");
-    console.log(`🔥 [RENDER OTP] To: ${options.email || 'Unknown'} | OTP: ${extractedOtp}`);
-    console.log("📝 Subject: " + (options.subject || 'No Subject'));
-    console.log("------------------------------------------");
-    return; // Exit early, don't send real email
-  }
+    let transporter;
 
-  const mailOptions = {
-    from: "BANGER SIDE Support <support@bangerside.com>",
-    to: options.email,
-    subject: options.subject,
-    text: options.message,
-    html: options.html,
-  };
+    // ✅ REAL EMAIL MODE (Gmail SMTP)
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // TLS
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS.replace(/\s+/g, ""), // remove accidental spaces
+        },
+        family: 4, // avoid IPv6 issues (Render fix)
+        connectionTimeout: 15000,
+      });
+    } 
+    // ✅ MOCK MODE (No credentials → log OTP only)
+    else {
+      const otp =
+        options.html?.match(/\d{6}/)?.[0] ||
+        options.message?.match(/\d{6}/)?.[0] ||
+        "N/A";
 
-  // 🚀 ALWAYS LOG OTP FOR RENDER DASHBOARD (So you don't need real Gmail)
-  const extractedOtpAlt = options.html ? (options.html.match(/\d{6}/)?.[0] || 'N/A') : 'N/A';
-  console.log("------------------------------------------");
-  console.log(`🔥 [RENDER OTP] To: ${options.email || 'Unknown'} | OTP: ${extractedOtpAlt}`);
-  console.log("------------------------------------------");
+      console.log("--------------------------------------------------");
+      console.log(`🔥 [MOCK EMAIL MODE]`);
+      console.log(`📩 To: ${options.email}`);
+      console.log(`🔐 OTP: ${otp}`);
+      console.log(`📝 Subject: ${options.subject || "No Subject"}`);
+      console.log("--------------------------------------------------");
 
-  const info = await transporter.sendMail(mailOptions);
-  
-  if (!process.env.EMAIL_USER) {
-    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+      return; // stop execution
+    }
+
+    // ✅ Email options
+    const mailOptions = {
+      from: `"BANGER SIDE Support" <${process.env.EMAIL_USER}>`,
+      to: options.email,
+      subject: options.subject || "No Subject",
+      text: options.message || "",
+      html: options.html || "",
+    };
+
+    // ✅ Extract OTP for logging
+    const otp =
+      options.html?.match(/\d{6}/)?.[0] ||
+      options.message?.match(/\d{6}/)?.[0] ||
+      "N/A";
+
+    console.log("--------------------------------------------------");
+    console.log(`📤 Sending Email`);
+    console.log(`📩 To: ${options.email}`);
+    console.log(`🔐 OTP: ${otp}`);
+    console.log("--------------------------------------------------");
+
+    // ✅ Send email
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("✅ Email sent successfully:", info.messageId);
+  } catch (error) {
+    console.error("❌ Email sending failed:");
+    console.error(error.message);
   }
 };
 
