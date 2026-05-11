@@ -34,7 +34,12 @@ module.exports.registerUser = async function (req, res) {
     if (existingUser) {
       console.log("⚠️ STEP 1.1: User already exists");
       if (!existingUser.isVerified) {
-        // RESEND OTP FLOW
+        // Update details if they changed during re-registration attempt
+        existingUser.email = email;
+        existingUser.contact = contact;
+        existingUser.fullname = fullname;
+        existingUser.password = await bcrypt.hash(password, 10);
+        
         const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
         existingUser.otp = newOtp;
         existingUser.otpExpires = Date.now() + 10 * 60 * 1000;
@@ -42,7 +47,6 @@ module.exports.registerUser = async function (req, res) {
 
         const otpMessage = `Your BANGER SIDE verification code is: ${newOtp}. Valid for 10 minutes.`;
         
-        // Try Email
         try {
           await sendEmail({
             email: existingUser.email,
@@ -56,7 +60,7 @@ module.exports.registerUser = async function (req, res) {
           });
         } catch(e) { console.log("Re-reg email fail"); }
 
-        req.flash("success", "User already exists but is unverified. A new OTP has been sent to your email.");
+        req.flash("success", "Account details updated. A new OTP has been sent to your email.");
         return res.redirect(`/users/verify?email=${encodeURIComponent(existingUser.email)}`);
       }
       req.flash("error", "User already exists with this email or contact.");
