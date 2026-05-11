@@ -260,23 +260,34 @@ module.exports.resendOtp = async function (req, res) {
 
 module.exports.loginOtpRequest = async function (req, res) {
   try {
-    let { contact } = req.body;
-    contact = contact && contact.trim();
+    let { contact } = req.body; // 'contact' is the field name from the form
+    const identifier = contact && contact.trim().toLowerCase();
 
-    if (!contact) {
-      req.flash("error", "Contact number is required");
+    if (!identifier) {
+      req.flash("error", "Email or Phone Number is required");
       return res.redirect("/");
     }
 
-    let user = await userModel.findOne({ contact });
+    const isEmail = identifier.includes("@");
+    let user;
+
+    if (isEmail) {
+      user = await userModel.findOne({ email: identifier });
+    } else {
+      user = await userModel.findOne({ contact: identifier });
+    }
 
     if (!user) {
-      // Create minimal user if not exists
-      user = await userModel.create({
-        contact,
-        fullname: "Customer", // Placeholder, will update at checkout
+      // Create a new user if they don't exist
+      const userData = {
+        fullname: "Banger User", // Default name
         isVerified: false
-      });
+      };
+      if (isEmail) userData.email = identifier;
+      else userData.contact = identifier;
+
+      user = await userModel.create(userData);
+      console.log(`✨ New user created via OTP: ${identifier}`);
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -284,18 +295,11 @@ module.exports.loginOtpRequest = async function (req, res) {
     user.otpExpires = Date.now() + 10 * 60 * 1000;
     await user.save();
 
-    const otpMessage = `Your BANGER SIDE login OTP is: ${otp}. Valid for 10 minutes. Do not share.`;
+    const otpMessage = `Your BANGER SIDE verification code is: ${otp}. Valid for 10 minutes.`;
 
-    // Send OTP via SMS (Real Twilio)
-    await sendSMS({
-      to: contact,
-      message: otpMessage,
-    });
-
-    // Also send via email if user has one registered
-    if (user.email) {
+    if (isEmail || user.email) {
       await sendEmail({
-        email: user.email,
+        email: user.email || (isEmail ? identifier : null),
         subject: "Your BANGER SIDE Login OTP",
         message: otpMessage,
         html: `
@@ -308,9 +312,21 @@ module.exports.loginOtpRequest = async function (req, res) {
       });
     }
 
-    req.flash("success", "OTP sent to your phone number!");
-    return res.render("login-otp-verify", { contact, error: req.flash("error") });
+    if (!isEmail) {
+      try {
+        await sendSMS({
+          to: identifier,
+          message: otpMessage,
+        });
+      } catch (smsErr) {
+        console.error("SMS failed, but email might have been sent if user has one.");
+      }
+    }
+
+    req.flash("success", `OTP sent to your ${isEmail ? 'email' : 'phone'}!`);
+    return res.render("login-otp-verify", { contact: identifier, error: req.flash("error") });
   } catch (err) {
+    console.error("OTP Request Error:", err);
     req.flash("error", err.message);
     return res.redirect("/");
   }
@@ -319,13 +335,25 @@ module.exports.loginOtpRequest = async function (req, res) {
 module.exports.verifyLoginOtp = async function (req, res) {
   try {
     let { contact, otp } = req.body;
-    contact = contact && contact.trim();
+    const identifier = contact && contact.trim().toLowerCase();
 
-    const user = await userModel.findOne({ contact });
+    if (!identifier || !otp) {
+      req.flash("error", "Identifier and OTP are required");
+      return res.redirect("/");
+    }
+
+    const isEmail = identifier.includes("@");
+    let user;
+
+    if (isEmail) {
+      user = await userModel.findOne({ email: identifier });
+    } else {
+      user = await userModel.findOne({ contact: identifier });
+    }
 
     if (!user || user.otp !== otp || user.otpExpires < Date.now()) {
       req.flash("error", "Invalid or expired OTP.");
-      return res.render("login-otp-verify", { contact, error: req.flash("error") });
+      return res.render("login-otp-verify", { contact: identifier, error: req.flash("error") });
     }
 
     user.isVerified = true;

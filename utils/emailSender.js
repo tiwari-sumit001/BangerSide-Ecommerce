@@ -3,45 +3,36 @@ const nodemailer = require("nodemailer");
 
 const sendEmail = async (options) => {
   try {
-    // ✅ Validate required fields
     if (!options || !options.email) {
       throw new Error("Recipient email is required");
     }
 
-    let transporter;
+    // Check for real credentials
+    const isConfigured = process.env.EMAIL_USER && 
+                         process.env.EMAIL_PASS && 
+                         process.env.EMAIL_PASS.length > 5; // Basic check for real pass
 
-    // ✅ REAL EMAIL MODE (Gmail SMTP)
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // TLS
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS.replace(/\s+/g, ""), // remove accidental spaces
-        },
-        family: 4, // avoid IPv6 issues (Render fix)
-        connectionTimeout: 15000,
-      });
-    } 
-    // ✅ MOCK MODE (No credentials → log OTP only)
-    else {
-      const otp =
-        options.html?.match(/\d{6}/)?.[0] ||
-        options.message?.match(/\d{6}/)?.[0] ||
-        "N/A";
-
-      console.log("--------------------------------------------------");
-      console.log(`🔥 [MOCK EMAIL MODE]`);
-      console.log(`📩 To: ${options.email}`);
-      console.log(`🔐 OTP: ${otp}`);
-      console.log(`📝 Subject: ${options.subject || "No Subject"}`);
-      console.log("--------------------------------------------------");
-
-      return; // stop execution
+    if (!isConfigured) {
+      const otp = options.html?.match(/\d{6}/)?.[0] || "N/A";
+      console.log("\n⚠️ [EMAIL NOT CONFIGURED] ⚠️");
+      console.log(`To: ${options.email}`);
+      console.log(`OTP: ${otp}`);
+      console.log("Please set valid EMAIL_USER and EMAIL_PASS (App Password) in .env to send real emails.\n");
+      return;
     }
 
-    // ✅ Email options
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false, // TLS
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS.replace(/\s+/g, ""), // clean accidental spaces
+      },
+      family: 4, // bypass IPv6 issues on some cloud providers
+      connectionTimeout: 10000,
+    });
+
     const mailOptions = {
       from: `"BANGER SIDE Support" <${process.env.EMAIL_USER}>`,
       to: options.email,
