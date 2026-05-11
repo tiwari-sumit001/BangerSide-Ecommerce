@@ -34,9 +34,30 @@ module.exports.registerUser = async function (req, res) {
     if (existingUser) {
       console.log("⚠️ STEP 1.1: User already exists");
       if (!existingUser.isVerified) {
-        req.flash("error", "Please verify your account. An OTP was sent previously.");
-        const safeIdentifier = existingUser.email || existingUser.contact || "user";
-        return res.redirect(`/users/verify?email=${encodeURIComponent(safeIdentifier)}`);
+        // RESEND OTP FLOW
+        const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        existingUser.otp = newOtp;
+        existingUser.otpExpires = Date.now() + 10 * 60 * 1000;
+        await existingUser.save();
+
+        const otpMessage = `Your BANGER SIDE verification code is: ${newOtp}. Valid for 10 minutes.`;
+        
+        // Try Email
+        try {
+          await sendEmail({
+            email: existingUser.email,
+            subject: "Verify your BANGER SIDE Account",
+            message: otpMessage,
+            html: `<div style="font-family:sans-serif;max-width:500px;margin:auto;padding:30px;border:1px solid #eee;border-radius:12px">
+                    <h2 style="color:#2563eb">Account Verification 🔥</h2>
+                    <p>Use this OTP to verify your account:</p>
+                    <h1 style="letter-spacing:8px;color:#1a202c;background:#f3f4f6;padding:16px;border-radius:8px;text-align:center">${newOtp}</h1>
+                  </div>`
+          });
+        } catch(e) { console.log("Re-reg email fail"); }
+
+        req.flash("success", "User already exists but is unverified. A new OTP has been sent to your email.");
+        return res.redirect(`/users/verify?email=${encodeURIComponent(existingUser.email)}`);
       }
       req.flash("error", "User already exists with this email or contact.");
       return res.redirect("/");
